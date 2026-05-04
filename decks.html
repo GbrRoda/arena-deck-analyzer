@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decks PRO</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+overflow-x:hidden;
+transition:opacity .45s ease;
+}
+
+body.fade-out{
+opacity:0;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/clash%20royale%20arena%20cinematic%20bright%20battle%20strategy")
+center/cover no-repeat;
+filter:blur(4px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.38);
+z-index:-1;
+}
+
+#loading{
+position:fixed;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:radial-gradient(circle,rgba(40,20,0,.75),rgba(0,0,0,.95));
+z-index:9999;
+}
+
+#loading.active{
+display:flex;
+}
+
+.loader-crown{
+font-size:70px;
+animation:loadingPulse 1s infinite alternate;
+}
+
+.loader-text{
+margin-top:18px;
+font-weight:bold;
+color:gold;
+text-shadow:0 0 18px gold;
+}
+
+.topbar{
+position:fixed;
+top:0;
+width:100%;
+padding:16px;
+background:rgba(0,0,0,.75);
+border-bottom:2px solid gold;
+z-index:10;
+font-weight:bold;
+}
+
+.container{
+padding-top:95px;
+padding-bottom:100px;
+max-width:1250px;
+margin:auto;
+}
+
+.section,.coach-box{
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(6px);
+border:1px solid rgba(255,255,255,.18);
+border-radius:18px;
+padding:22px;
+margin:22px auto;
+box-shadow:0 0 25px rgba(0,0,0,.35);
+}
+
+.coach-box{
+max-width:950px;
+box-shadow:0 0 25px rgba(255,215,0,.25);
+}
+
+.decks{
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+margin-top:20px;
+}
+
+.deck{
+width:270px;
+background:rgba(20,20,20,.75);
+border-radius:16px;
+padding:18px;
+cursor:pointer;
+transition:.3s;
+border:2px solid transparent;
+}
+
+.deck:hover{
+transform:translateY(-6px) scale(1.03);
+box-shadow:0 0 25px gold;
+}
+
+.deck.active{
+border:2px solid gold;
+box-shadow:0 0 30px gold;
+}
+
+.cards{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:8px;
+margin-top:14px;
+min-height:65px;
+}
+
+.card{
+width:58px;
+cursor:pointer;
+transition:.3s;
+border-radius:8px;
+}
+
+.card:hover{
+transform:scale(1.2);
+box-shadow:0 0 15px gold;
+}
+
+.card.selected{
+transform:scale(1.12);
+box-shadow:0 0 15px gold;
+}
+
+.grid{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:10px;
+max-width:1100px;
+margin:18px auto 0;
+}
+
+.grid img{
+width:62px;
+cursor:pointer;
+transition:.3s;
+border-radius:8px;
+}
+
+.grid img:hover{
+transform:scale(1.2);
+box-shadow:0 0 15px gold;
+}
+
+.grid img.used{
+opacity:.35;
+filter:grayscale(100%);
+}
+
+button{
+margin:10px;
+padding:13px 24px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.ia-btn{
+background:linear-gradient(45deg,#b400ff,#ff00aa);
+color:white;
+box-shadow:0 0 18px #ff00aa;
+}
+
+.ia-btn:hover{
+box-shadow:0 0 30px #ff00aa;
+}
+
+.save-btn{
+background:linear-gradient(45deg,#00ff99,#00aa66);
+color:white;
+box-shadow:0 0 18px #00ff99;
+}
+
+.delete-btn{
+background:linear-gradient(45deg,#ff4444,#aa0000);
+color:white;
+}
+
+.back{
+position:fixed;
+bottom:18px;
+left:18px;
+z-index:20;
+}
+
+.phase{
+font-size:20px;
+font-weight:bold;
+color:gold;
+margin-bottom:18px;
+text-shadow:0 0 10px black;
+}
+
+.status{
+margin-top:10px;
+color:#ffcc00;
+font-weight:bold;
+}
+
+.filters{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+margin-top:15px;
+}
+
+.search{
+margin-top:15px;
+padding:12px 18px;
+width:90%;
+max-width:420px;
+border:none;
+border-radius:12px;
+outline:none;
+font-size:15px;
+}
+
+.enemyActive{
+box-shadow:0 0 25px cyan !important;
+border:2px solid cyan !important;
+}
+
+.sugestao{
+background:rgba(255,255,255,.08);
+padding:12px;
+border-radius:12px;
+margin:10px auto;
+max-width:720px;
+}
+
+.sugestao strong{
+color:gold;
+}
+
+.saved-decks{
+display:flex;
+justify-content:center;
+gap:18px;
+flex-wrap:wrap;
+margin-top:18px;
+}
+
+.saved-card{
+width:280px;
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,215,0,.35);
+border-radius:16px;
+padding:15px;
+box-shadow:0 0 18px rgba(255,215,0,.15);
+transition:.3s;
+}
+
+.saved-card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 25px rgba(255,215,0,.45);
+}
+
+.saved-card h3{
+color:gold;
+margin-bottom:8px;
+}
+
+.saved-mini{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:5px;
+margin-top:8px;
+}
+
+.saved-mini img{
+width:42px;
+border-radius:6px;
+}
+
+h2{
+margin-bottom:10px;
+text-shadow:0 0 10px black;
+}
+
+@keyframes loadingPulse{
+from{transform:scale(1) rotate(-6deg);text-shadow:0 0 15px gold;}
+to{transform:scale(1.25) rotate(6deg);text-shadow:0 0 45px orange;}
+}
+
+@media(max-width:700px){
+.deck{width:90%;}
+.card,.grid img{width:52px;}
+.saved-card{width:92%;}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+<div class="loader-crown">👑</div>
+<div class="loader-text">Carregando arena...</div>
+</div>
+
+<div class="topbar">⚔️ Escolha seu Deck ⚔️</div>
+
+<div class="container">
+
+<div class="phase">
+Fase atual: <span id="phaseText">PLAYER</span>
+</div>
+
+<div class="section">
+<h2>⚔️ Decks Prontos ⚔️</h2>
+
+<div class="decks">
+
+<div class="deck" data-deck="mega">
+<h3>Mega Deck</h3>
+<div class="cards" id="mega"></div>
+</div>
+
+<div class="deck" data-deck="log">
+<h3>Log Bait</h3>
+<div class="cards" id="log"></div>
+</div>
+
+<div class="deck" data-deck="corredor">
+<h3>Corredor 2.6</h3>
+<div class="cards" id="corredor"></div>
+</div>
+
+</div>
+</div>
+
+<div class="section">
+<h2>🧠 Seu Deck</h2>
+<div id="playerDeck" class="cards"></div>
+<div class="status" id="playerStatus">0/8 cartas selecionadas</div>
+
+<button class="save-btn" onclick="salvarDeckFavorito()">💾 Salvar Deck Favorito</button>
+<button class="ia-btn" onclick="analisarNaIA()">🤖 Analisar este Deck na IA</button>
+</div>
+
+<div class="section">
+<h2>💾 Meus Decks Salvos</h2>
+<p>Salve seus decks favoritos e use quando quiser.</p>
+<div id="savedDecks" class="saved-decks"></div>
+</div>
+
+<div class="coach-box" id="coachBox">
+<h2>🧠 Coach PRO</h2>
+<p>Monte seu deck para receber análise.</p>
+</div>
+
+<div class="section">
+<h2>👾 Deck Inimigo</h2>
+<div id="enemyDeck" class="cards"></div>
+<div class="status" id="enemyStatus">0/8 cartas selecionadas</div>
+</div>
+
+<div class="section">
+<h2>📦 Todas as Cartas</h2>
+
+<input class="search" id="searchCard" placeholder="🔎 Buscar carta..." oninput="renderGrid()">
+
+<div class="filters">
+<button onclick="setFilter('todas')">Todas</button>
+<button onclick="setFilter('tropa')">Tropas</button>
+<button onclick="setFilter('feitico')">Feitiços</button>
+<button onclick="setFilter('construcao')">Construções</button>
+<button onclick="setFilter('campeao')">Campeões</button>
+<button onclick="setFilter('evolucao')">Evoluções</button>
+</div>
+
+<div class="grid" id="allCards"></div>
+</div>
+
+<div class="section">
+<h2>👾 Tipo de Inimigo</h2>
+
+<button id="btnRandom" onclick="setEnemy('random')">🎲 Aleatório</button>
+<button id="btnMeta" onclick="setEnemy('meta')">🌐 Meta</button>
+<button id="btnCounter" onclick="setEnemy('counter')">🧠 Counter</button>
+
+<br>
+
+<button onclick="gerarAleatorio()">🎲 Aleatório Deck</button>
+<button onclick="proximo()">➡️ Próximo</button>
+<button onclick="confirmar()">⚔️ Batalha</button>
+<button onclick="navegarPara('historico.html')">📜 Histórico</button>
+<button class="ia-btn" onclick="navegarPara('ia.html')">🤖 Coach IA</button>
+<button onclick="navegarPara('index.html')">🏠 Menu</button>
+</div>
+
+</div>
+
+<div class="back">
+<button onclick="voltarPagina()">🔙 Retornar</button>
+</div>
+
+<script>
+
+const imgBase="https://royaleapi.github.io/cr-api-assets/cards/";
+
+const allCards=[
+{name:"Knight",type:"tropa",evo:true},
+{name:"Archers",type:"tropa",evo:true},
+{name:"Goblins",type:"tropa",evo:true},
+{name:"Spear Goblins",type:"tropa",evo:true},
+{name:"Skeletons",type:"tropa",evo:true},
+{name:"Bomber",type:"tropa",evo:true},
+{name:"Minions",type:"tropa",evo:false},
+{name:"Bats",type:"tropa",evo:true},
+{name:"Firecracker",type:"tropa",evo:true},
+{name:"Barbarians",type:"tropa",evo:true},
+{name:"Royal Giant",type:"tropa",evo:true},
+{name:"Royal Recruits",type:"tropa",evo:true},
+{name:"Ice Spirit",type:"tropa",evo:true},
+{name:"Electro Spirit",type:"tropa",evo:false},
+{name:"Fire Spirit",type:"tropa",evo:false},
+{name:"Heal Spirit",type:"tropa",evo:false},
+{name:"Giant Snowball",type:"feitico",evo:true},
+{name:"Musketeer",type:"tropa",evo:true},
+{name:"Mini P.E.K.K.A",type:"tropa",evo:false},
+{name:"Giant",type:"tropa",evo:true},
+{name:"Valkyrie",type:"tropa",evo:true},
+{name:"Mega Minion",type:"tropa",evo:false},
+{name:"Battle Ram",type:"tropa",evo:true},
+{name:"Wizard",type:"tropa",evo:true},
+{name:"Flying Machine",type:"tropa",evo:false},
+{name:"Hog Rider",type:"tropa",evo:false},
+{name:"Royal Hogs",type:"tropa",evo:true},
+{name:"Three Musketeers",type:"tropa",evo:false},
+{name:"Elixir Golem",type:"tropa",evo:false},
+{name:"Zappies",type:"tropa",evo:false},
+{name:"Furnace",type:"construcao",evo:true},
+{name:"Goblin Cage",type:"construcao",evo:true},
+{name:"Goblin Hut",type:"construcao",evo:false},
+{name:"Bomb Tower",type:"construcao",evo:false},
+{name:"Inferno Tower",type:"construcao",evo:false},
+{name:"Tombstone",type:"construcao",evo:false},
+{name:"Cannon",type:"construcao",evo:true},
+{name:"Tesla",type:"construcao",evo:true},
+{name:"Mortar",type:"construcao",evo:true},
+{name:"Elixir Collector",type:"construcao",evo:false},
+{name:"Baby Dragon",type:"tropa",evo:false},
+{name:"Prince",type:"tropa",evo:false},
+{name:"Dark Prince",type:"tropa",evo:false},
+{name:"Guards",type:"tropa",evo:false},
+{name:"Skeleton Army",type:"tropa",evo:false},
+{name:"Witch",type:"tropa",evo:false},
+{name:"Balloon",type:"tropa",evo:false},
+{name:"Giant Skeleton",type:"tropa",evo:true},
+{name:"Goblin Giant",type:"tropa",evo:true},
+{name:"Hunter",type:"tropa",evo:false},
+{name:"Executioner",type:"tropa",evo:true},
+{name:"Bowler",type:"tropa",evo:false},
+{name:"Cannon Cart",type:"tropa",evo:false},
+{name:"Electro Dragon",type:"tropa",evo:true},
+{name:"Electro Giant",type:"tropa",evo:false},
+{name:"P.E.K.K.A",type:"tropa",evo:true},
+{name:"Goblin Drill",type:"construcao",evo:true},
+{name:"Wall Breakers",type:"tropa",evo:true},
+{name:"Skeleton Barrel",type:"tropa",evo:true},
+{name:"Goblin Barrel",type:"feitico",evo:true},
+{name:"Clone",type:"feitico",evo:false},
+{name:"Freeze",type:"feitico",evo:false},
+{name:"Poison",type:"feitico",evo:false},
+{name:"Lightning",type:"feitico",evo:false},
+{name:"Rage",type:"feitico",evo:false},
+{name:"Barbarian Barrel",type:"feitico",evo:false},
+{name:"Void",type:"feitico",evo:false},
+{name:"Mirror",type:"feitico",evo:false},
+{name:"Mega Knight",type:"tropa",evo:true},
+{name:"Lava Hound",type:"tropa",evo:false},
+{name:"Inferno Dragon",type:"tropa",evo:false},
+{name:"Electro Wizard",type:"tropa",evo:false},
+{name:"Princess",type:"tropa",evo:false},
+{name:"Miner",type:"tropa",evo:false},
+{name:"Bandit",type:"tropa",evo:false},
+{name:"Royal Ghost",type:"tropa",evo:false},
+{name:"Magic Archer",type:"tropa",evo:false},
+{name:"Ram Rider",type:"tropa",evo:false},
+{name:"Fisherman",type:"tropa",evo:false},
+{name:"Mother Witch",type:"tropa",evo:false},
+{name:"Phoenix",type:"tropa",evo:false},
+{name:"Sparky",type:"tropa",evo:false},
+{name:"Night Witch",type:"tropa",evo:false},
+{name:"The Log",type:"feitico",evo:false},
+{name:"Graveyard",type:"feitico",evo:false},
+{name:"Archer Queen",type:"campeao",evo:false},
+{name:"Golden Knight",type:"campeao",evo:false},
+{name:"Skeleton King",type:"campeao",evo:false},
+{name:"Mighty Miner",type:"campeao",evo:false},
+{name:"Monk",type:"campeao",evo:false},
+{name:"Little Prince",type:"campeao",evo:false},
+{name:"Goblinstein",type:"campeao",evo:false},
+{name:"Boss Bandit",type:"campeao",evo:false},
+{name:"Arrows",type:"feitico",evo:false},
+{name:"Zap",type:"feitico",evo:true},
+{name:"Fireball",type:"feitico",evo:false},
+{name:"Rocket",type:"feitico",evo:false},
+{name:"Earthquake",type:"feitico",evo:false},
+{name:"Royal Delivery",type:"feitico",evo:false},
+{name:"Tornado",type:"feitico",evo:false},
+{name:"Goblin Curse",type:"feitico",evo:false},
+{name:"Suspicious Bush",type:"tropa",evo:false},
+{name:"Dart Goblin",type:"tropa",evo:true},
+{name:"Goblin Demolisher",type:"tropa",evo:false},
+{name:"Rune Giant",type:"tropa",evo:false}
+];
+
+const decks={
+mega:["Mega Knight","Ram Rider","Fisherman","Poison","Zap","Witch","Goblin Cage","Goblins"],
+log:["Princess","Goblin Barrel","Rocket","Inferno Tower","Goblin Gang","Knight","The Log","Ice Spirit"],
+corredor:["Hog Rider","Musketeer","The Log","Ice Spirit","Cannon","Ice Golem","Fireball","Skeletons"]
+};
+
+const metaDecks=[
+["Mega Knight","Ram Rider","Fisherman","Poison","Zap","Witch","Goblin Cage","Goblins"],
+["Hog Rider","Musketeer","The Log","Ice Spirit","Cannon","Ice Golem","Fireball","Skeletons"],
+["Princess","Goblin Barrel","Rocket","Inferno Tower","Goblin Gang","Knight","The Log","Ice Spirit"],
+["P.E.K.K.A","Battle Ram","Bandit","Royal Ghost","Magic Archer","Zap","Poison","Electro Wizard"],
+["Lava Hound","Balloon","Mega Minion","Baby Dragon","Arrows","Tombstone","Fireball","Skeletons"]
+];
+
+let playerCards=[];
+let enemyCards=[];
+let phase="player";
+let enemyType="random";
+let currentFilter="todas";
+
+const playerDiv=document.getElementById("playerDeck");
+const enemyDiv=document.getElementById("enemyDeck");
+const grid=document.getElementById("allCards");
+
+function getNames(){
+return allCards.map(c=>c.name);
+}
+
+function cardFile(name){
+return name.toLowerCase()
+.replaceAll(".","")
+.replaceAll(" ","-")
+.replaceAll("'","");
+}
+
+function setFilter(type){
+currentFilter=type;
+renderGrid();
+}
+
+function renderDeck(container,deck){
+container.innerHTML="";
+deck.forEach((name,index)=>{
+let img=document.createElement("img");
+img.className="card selected";
+img.src=imgBase+cardFile(name)+".png";
+img.title=name;
+
+img.onclick=()=>{
+if(phase==="player" && container===playerDiv){
+playerCards.splice(index,1);
+renderAll();
+}
+
+if(phase==="enemy" && container===enemyDiv){
+enemyCards.splice(index,1);
+renderAll();
+}
+};
+
+container.appendChild(img);
+});
+}
+
+function renderAll(){
+renderDeck(playerDiv,playerCards);
+renderDeck(enemyDiv,enemyCards);
+
+document.getElementById("playerStatus").innerText=playerCards.length+"/8 cartas selecionadas";
+document.getElementById("enemyStatus").innerText=enemyCards.length+"/8 cartas selecionadas";
+document.getElementById("phaseText").innerText=phase.toUpperCase();
+
+renderGrid();
+mostrarCoach();
+renderDecksSalvos();
+}
+
+function renderGrid(){
+grid.innerHTML="";
+
+let search=document.getElementById("searchCard").value.toLowerCase();
+
+allCards
+.filter(card=>{
+if(currentFilter==="todas") return true;
+if(currentFilter==="evolucao") return card.evo===true;
+return card.type===currentFilter;
+})
+.filter(card=>card.name.toLowerCase().includes(search))
+.forEach(card=>{
+let img=document.createElement("img");
+img.src=imgBase+cardFile(card.name)+".png";
+img.title=card.name;
+
+let atual=phase==="player" ? playerCards : enemyCards;
+
+if(atual.includes(card.name)){
+img.classList.add("used");
+}
+
+img.onclick=()=>{
+
+if(phase==="ready"){
+alert("A batalha já está pronta!");
+return;
+}
+
+if(phase==="player"){
+if(playerCards.includes(card.name)){
+alert("Essa carta já está no seu deck!");
+return;
+}
+
+if(playerCards.length>=8){
+alert("Seu deck já tem 8 cartas!");
+return;
+}
+
+playerCards.push(card.name);
+}
+
+else if(phase==="enemy"){
+if(enemyCards.includes(card.name)){
+alert("Essa carta já está no deck inimigo!");
+return;
+}
+
+if(enemyCards.length>=8){
+alert("Deck inimigo já tem 8 cartas!");
+return;
+}
+
+enemyCards.push(card.name);
+}
+
+renderAll();
+};
+
+grid.appendChild(img);
+});
+}
+
+function montarDecksProntos(){
+for(let d in decks){
+let container=document.getElementById(d);
+container.innerHTML="";
+
+decks[d].forEach(name=>{
+let img=document.createElement("img");
+img.className="card";
+img.src=imgBase+cardFile(name)+".png";
+img.title=name;
+container.appendChild(img);
+});
+}
+}
+
+document.querySelectorAll(".deck").forEach(deckBox=>{
+deckBox.onclick=()=>{
+
+let tipo=deckBox.getAttribute("data-deck");
+
+document.querySelectorAll(".deck").forEach(d=>d.classList.remove("active"));
+deckBox.classList.add("active");
+
+if(phase==="player"){
+playerCards=[...decks[tipo]];
+}
+
+else if(phase==="enemy"){
+enemyCards=[...decks[tipo]];
+}
+
+else{
+alert("A batalha já está pronta!");
+return;
+}
+
+renderAll();
+deckBox.classList.add("active");
+};
+});
+
+function gerar(){
+let nomes=getNames();
+let copy=[...nomes];
+let deck=[];
+
+for(let i=0;i<8;i++){
+let r=Math.floor(Math.random()*copy.length);
+deck.push(copy[r]);
+copy.splice(r,1);
+}
+
+return deck;
+}
+
+function fixDeck(deck){
+let nomes=getNames();
+let d=[...deck].filter(Boolean);
+
+while(d.length<8){
+let carta=nomes[Math.floor(Math.random()*nomes.length)];
+if(!d.includes(carta)){
+d.push(carta);
+}
+}
+
+return d.slice(0,8);
+}
+
+function gerarMetaDeck(){
+let r=Math.floor(Math.random()*metaDecks.length);
+return [...metaDecks[r]];
+}
+
+function gerarCounterDeck(){
+
+let deck=[];
+
+if(playerCards.includes("Hog Rider") || playerCards.includes("Royal Hogs") || playerCards.includes("Ram Rider")){
+deck=["Cannon","Tesla","Knight","Musketeer","Fireball","Skeletons","Ice Spirit","The Log"];
+}
+
+else if(playerCards.includes("Mega Knight") || playerCards.includes("P.E.K.K.A") || playerCards.includes("Giant") || playerCards.includes("Royal Giant")){
+deck=["Inferno Tower","Mini P.E.K.K.A","Valkyrie","Musketeer","Zap","Fireball","Skeletons","Ice Spirit"];
+}
+
+else if(playerCards.includes("Goblin Barrel") || playerCards.includes("Princess") || playerCards.includes("Goblin Gang")){
+deck=["The Log","Arrows","Valkyrie","Tesla","Fireball","Knight","Ice Spirit","Musketeer"];
+}
+
+else if(playerCards.includes("Lava Hound") || playerCards.includes("Balloon") || playerCards.includes("Baby Dragon") || playerCards.includes("Phoenix")){
+deck=["Inferno Tower","Musketeer","Electro Wizard","Minions","Fireball","Zap","Knight","Arrows"];
+}
+
+else if(playerCards.includes("Sparky")){
+deck=["Electro Wizard","Zap","Rocket","Knight","Skeletons","Tesla","Fireball","Ice Spirit"];
+}
+
+else{
+deck=gerarMetaDeck();
+}
+
+return fixDeck(deck);
+}
+
+function gerarEnemySmart(){
+let deck=[];
+
+if(enemyType==="meta"){
+deck=gerarMetaDeck();
+}
+
+else if(enemyType==="counter"){
+deck=gerarCounterDeck();
+}
+
+else{
+deck=gerar();
+}
+
+return fixDeck(deck);
+}
+
+function setEnemy(type){
+enemyType=type;
+
+document.getElementById("btnRandom").classList.remove("enemyActive");
+document.getElementById("btnMeta").classList.remove("enemyActive");
+document.getElementById("btnCounter").classList.remove("enemyActive");
+
+if(type==="random"){
+document.getElementById("btnRandom").classList.add("enemyActive");
+}
+
+if(type==="meta"){
+document.getElementById("btnMeta").classList.add("enemyActive");
+}
+
+if(type==="counter"){
+document.getElementById("btnCounter").classList.add("enemyActive");
+}
+
+localStorage.setItem("enemyType",enemyType);
+
+if(playerCards.length !== 8){
+playerCards = gerar();
+}
+
+enemyCards = gerarEnemySmart();
+phase = "enemy";
+
+renderAll();
+
+alert("Seu deck e o deck inimigo foram gerados como: " + type);
+}
+
+function gerarAleatorio(){
+
+if(phase==="player"){
+playerCards=gerar();
+}
+
+else if(phase==="enemy"){
+enemyCards=gerar();
+}
+
+else{
+alert("A batalha já está pronta!");
+return;
+}
+
+renderAll();
+}
+
+function proximo(){
+
+if(phase==="player"){
+
+if(playerCards.length!==8){
+alert("Monte seu deck primeiro!");
+return;
+}
+
+phase="enemy";
+enemyCards=gerarEnemySmart();
+
+alert("Agora escolha o deck do inimigo! Se quiser, pode manter o gerado automaticamente.");
+renderAll();
+return;
+}
+
+if(phase==="enemy"){
+
+if(enemyCards.length!==8){
+enemyCards=gerarEnemySmart();
+}
+
+phase="ready";
+alert("Pronto para batalha!");
+renderAll();
+return;
+}
+
+}
+
+function confirmar(){
+
+if(playerCards.length!==8){
+playerCards=gerar();
+}
+
+if(enemyCards.length!==8){
+enemyCards=gerarEnemySmart();
+}
+
+playerCards=fixDeck(playerCards);
+enemyCards=fixDeck(enemyCards);
+
+localStorage.setItem("playerCards",JSON.stringify(playerCards));
+localStorage.setItem("enemyCards",JSON.stringify(enemyCards));
+localStorage.setItem("enemyType",enemyType);
+
+navegarPara("batalha.html");
+}
+
+/* =========================
+   FAVORITOS
+========================= */
+
+function salvarDeckFavorito(){
+if(playerCards.length!==8){
+alert("Monte um deck com 8 cartas antes de salvar.");
+return;
+}
+
+let nome=prompt("Digite um nome para esse deck:");
+
+if(!nome){
+nome="Deck Favorito";
+}
+
+let salvos=JSON.parse(localStorage.getItem("decksFavoritos")) || [];
+
+salvos.push({
+nome:nome,
+cartas:[...playerCards],
+data:new Date().toLocaleString("pt-BR")
+});
+
+localStorage.setItem("decksFavoritos",JSON.stringify(salvos));
+
+alert("Deck salvo com sucesso!");
+renderDecksSalvos();
+}
+
+function renderDecksSalvos(){
+const area=document.getElementById("savedDecks");
+
+if(!area) return;
+
+let salvos=JSON.parse(localStorage.getItem("decksFavoritos")) || [];
+
+area.innerHTML="";
+
+if(salvos.length===0){
+area.innerHTML="<p>Nenhum deck salvo ainda.</p>";
+return;
+}
+
+salvos.forEach((deck,index)=>{
+let imgs=deck.cartas.map(c=>`<img src="${imgBase}${cardFile(c)}.png" title="${c}">`).join("");
+
+area.innerHTML+=`
+<div class="saved-card">
+<h3>${deck.nome}</h3>
+<p>${deck.data}</p>
+<div class="saved-mini">${imgs}</div>
+<button onclick="usarDeckSalvo(${index})">Usar Deck</button>
+<button class="ia-btn" onclick="analisarDeckSalvoNaIA(${index})">IA</button>
+<button class="delete-btn" onclick="excluirDeckSalvo(${index})">Excluir</button>
+</div>
+`;
+});
+}
+
+function usarDeckSalvo(index){
+let salvos=JSON.parse(localStorage.getItem("decksFavoritos")) || [];
+
+if(!salvos[index]) return;
+
+playerCards=[...salvos[index].cartas];
+phase="player";
+renderAll();
+alert("Deck carregado!");
+}
+
+function excluirDeckSalvo(index){
+let salvos=JSON.parse(localStorage.getItem("decksFavoritos")) || [];
+
+if(!confirm("Deseja excluir esse deck salvo?")) return;
+
+salvos.splice(index,1);
+localStorage.setItem("decksFavoritos",JSON.stringify(salvos));
+renderDecksSalvos();
+}
+
+function analisarDeckSalvoNaIA(index){
+let salvos=JSON.parse(localStorage.getItem("decksFavoritos")) || [];
+
+if(!salvos[index]) return;
+
+localStorage.setItem("playerCards",JSON.stringify(salvos[index].cartas));
+navegarPara("ia.html");
+}
+
+function analisarNaIA(){
+if(playerCards.length!==8){
+alert("Monte um deck com 8 cartas para analisar na IA.");
+return;
+}
+
+localStorage.setItem("playerCards",JSON.stringify(playerCards));
+navegarPara("ia.html");
+}
+
+/* =========================
+   COACH PRO
+========================= */
+
+function getStatsCoach(card){
+
+const base={
+"Hog Rider":{win:true,cycle:true},
+"Ram Rider":{win:true},
+"Goblin Barrel":{win:true,bait:true},
+"Royal Giant":{win:true,tank:true},
+"Balloon":{win:true,air:true},
+"Battle Ram":{win:true},
+"Wall Breakers":{win:true,cycle:true},
+"Miner":{win:true,cycle:true},
+"Graveyard":{win:true,spell:true},
+
+"Mega Knight":{tank:true,splash:true},
+"P.E.K.K.A":{tank:true,dps:true},
+"Giant":{tank:true},
+"Lava Hound":{tank:true,air:true},
+"Electro Giant":{tank:true},
+"Goblin Giant":{tank:true},
+
+"Mini P.E.K.K.A":{dps:true},
+"Hunter":{dps:true,antiAir:true},
+"Inferno Tower":{dps:true,building:true},
+"Inferno Dragon":{dps:true,air:true},
+"Electro Wizard":{dps:true,antiAir:true},
+"Musketeer":{antiAir:true,dps:true},
+"Wizard":{antiAir:true,splash:true},
+"Baby Dragon":{air:true,splash:true},
+"Minions":{air:true},
+"Phoenix":{air:true,dps:true},
+"Electro Dragon":{air:true,antiAir:true},
+
+"Fireball":{spell:true},
+"Zap":{spell:true,cycle:true},
+"Arrows":{spell:true},
+"Rocket":{spell:true},
+"The Log":{spell:true,cycle:true},
+"Poison":{spell:true},
+"Lightning":{spell:true},
+"Tornado":{spell:true},
+
+"Cannon":{building:true,cycle:true},
+"Tesla":{building:true,antiAir:true},
+"Goblin Cage":{building:true},
+"Bomb Tower":{building:true,splash:true},
+"Mortar":{building:true,win:true},
+"Tombstone":{building:true},
+
+"Skeletons":{cycle:true},
+"Ice Spirit":{cycle:true},
+"Goblins":{cycle:true},
+"Bats":{cycle:true,air:true},
+"Knight":{cycle:true},
+"Ice Golem":{cycle:true,tank:true},
+
+"Princess":{bait:true},
+"Goblin Gang":{bait:true},
+"Dart Goblin":{bait:true,antiAir:true},
+"Spear Goblins":{bait:true,antiAir:true}
+};
+
+return base[card] || {};
+}
+
+function analisarDeck(deck){
+
+let tipos={
+win:0,
+tank:0,
+dps:0,
+spell:0,
+air:0,
+antiAir:0,
+building:0,
+cycle:0,
+bait:0,
+splash:0
+};
+
+deck.forEach(carta=>{
+let s=getStatsCoach(carta);
+
+if(s.win) tipos.win++;
+if(s.tank) tipos.tank++;
+if(s.dps) tipos.dps++;
+if(s.spell) tipos.spell++;
+if(s.air) tipos.air++;
+if(s.antiAir) tipos.antiAir++;
+if(s.building) tipos.building++;
+if(s.cycle) tipos.cycle++;
+if(s.bait) tipos.bait++;
+if(s.splash) tipos.splash++;
+});
+
+return tipos;
+}
+
+function sugerirTrocas(deck){
+let t=analisarDeck(deck);
+let sugestoes=[];
+
+function acharCartaParaTrocar(){
+let prioridades=["Skeletons","Ice Spirit","Goblins","Minions","Bats","Heal Spirit","Electro Spirit"];
+for(let c of prioridades){
+if(deck.includes(c)) return c;
+}
+return deck[7];
+}
+
+if(deck.length<8){
+return sugestoes;
+}
+
+if(t.win===0){
+sugestoes.push({de:acharCartaParaTrocar(),para:"Hog Rider",motivo:"faltava condição de vitória"});
+}
+
+if(t.spell===0){
+sugestoes.push({de:acharCartaParaTrocar(),para:"Fireball",motivo:"faltava feitiço forte"});
+}
+
+if(t.building===0){
+sugestoes.push({de:acharCartaParaTrocar(),para:"Tesla",motivo:"faltava construção defensiva"});
+}
+
+if(t.antiAir===0 && t.air===0){
+sugestoes.push({de:acharCartaParaTrocar(),para:"Musketeer",motivo:"faltava defesa aérea"});
+}
+
+if(t.cycle<2){
+sugestoes.push({de:acharCartaParaTrocar(),para:"Ice Spirit",motivo:"melhorar o ciclo do deck"});
+}
+
+return sugestoes.slice(0,3);
+}
+
+function aplicarTroca(de,para){
+let index=playerCards.indexOf(de);
+
+if(index!==-1 && !playerCards.includes(para)){
+playerCards[index]=para;
+renderAll();
+alert("Troca aplicada: " + de + " por " + para);
+}
+else if(playerCards.includes(para)){
+alert("Você já tem " + para + " no deck.");
+}
+else{
+alert("Não encontrei " + de + " no deck.");
+}
+}
+
+function detectarMeta(deck){
+
+if(deck.includes("Hog Rider") && deck.includes("Cannon") && deck.includes("Musketeer")){
+return "Meta detectado: Hog Cycle / ciclo rápido.";
+}
+
+if(deck.includes("Goblin Barrel") && deck.includes("Princess") && deck.includes("The Log")){
+return "Meta detectado: Log Bait.";
+}
+
+if(deck.includes("P.E.K.K.A") && deck.includes("Battle Ram")){
+return "Meta detectado: P.E.K.K.A Bridge Spam.";
+}
+
+if(deck.includes("Lava Hound") && deck.includes("Balloon")){
+return "Meta detectado: LavaLoon.";
+}
+
+if(deck.includes("Mega Knight") && deck.includes("Ram Rider")){
+return "Meta detectado: Mega Knight Controle.";
+}
+
+return "Meta detectado: deck personalizado.";
+}
+
+function coachDeck(deck){
+
+if(deck.length===0){
+return ["Monte seu deck para receber dicas automáticas."];
+}
+
+let t=analisarDeck(deck);
+let dicas=[];
+
+if(deck.length<8){
+dicas.push("⚠️ Seu deck ainda está incompleto. Escolha 8 cartas.");
+}
+
+if(t.win===0){
+dicas.push("❌ Falta condição de vitória. Use Hog Rider, Goblin Barrel, Balloon, Royal Giant ou Miner.");
+}
+
+if(t.spell===0){
+dicas.push("⚠️ Falta feitiço. Coloque Fireball, Zap, Arrows, The Log ou Poison.");
+}
+
+if(t.spell===1){
+dicas.push("ℹ️ Você tem apenas 1 feitiço. Muitos decks funcionam melhor com 2.");
+}
+
+if(t.building===0){
+dicas.push("⚠️ Sem construção defensiva. Pode sofrer contra Hog Rider, Ram Rider e Royal Giant.");
+}
+
+if(t.antiAir===0 && t.air===0){
+dicas.push("⚠️ Fraco contra aéreo. Adicione Musketeer, Electro Wizard, Baby Dragon, Minions ou Tesla.");
+}
+
+if(t.cycle<2){
+dicas.push("⚠️ Ciclo lento. Cartas baratas como Skeletons, Ice Spirit ou Goblins ajudam bastante.");
+}
+
+if(t.tank>=3){
+dicas.push("⚠️ Muitos tanques. Seu deck pode ficar pesado e travar no elixir.");
+}
+
+if(t.win>=1 && t.spell>=1 && (t.building>=1 || t.dps>=1) && (t.antiAir>=1 || t.air>=1)){
+dicas.push("✅ Deck bem estruturado: tem ataque, defesa e resposta aérea.");
+}
+
+return dicas;
+}
+
+function mostrarCoach(){
+let div=document.getElementById("coachBox");
+let dicas=coachDeck(playerCards);
+let trocas=sugerirTrocas(playerCards);
+let meta=detectarMeta(playerCards);
+
+let html=`
+<h2>🧠 Coach PRO</h2>
+<p><strong>${meta}</strong></p>
+${dicas.map(d=>`<p>${d}</p>`).join("")}
+`;
+
+if(trocas.length>0){
+html += `<h3>🔁 Sugestões automáticas de troca</h3>`;
+
+trocas.forEach(t=>{
+html += `
+<div class="sugestao">
+<p>Troque <strong>${t.de}</strong> por <strong>${t.para}</strong></p>
+<p>Motivo: ${t.motivo}</p>
+<button onclick="aplicarTroca('${t.de}','${t.para}')">Aplicar troca</button>
+</div>
+`;
+});
+}
+
+div.innerHTML=html;
+}
+
+function somClique(){
+try{
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const oscillator = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+oscillator.type = "triangle";
+oscillator.frequency.setValueAtTime(520, audioCtx.currentTime);
+
+gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+oscillator.connect(gain);
+gain.connect(audioCtx.destination);
+
+oscillator.start();
+oscillator.stop(audioCtx.currentTime + 0.15);
+}catch(e){}
+}
+
+function mostrarLoading(){
+const loading=document.getElementById("loading");
+
+if(loading){
+loading.classList.add("active");
+}
+
+document.body.classList.add("fade-out");
+}
+
+function navegarPara(pagina){
+somClique();
+mostrarLoading();
+
+setTimeout(()=>{
+window.location.href=pagina;
+},650);
+}
+
+montarDecksProntos();
+document.getElementById("btnRandom").classList.add("enemyActive");
+renderAll();
+
+
+
+/* =========================
+   🔥 SISTEMA DE VOLTAR REAL
+========================= */
+
+function salvarPaginaAtual(){
+let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
+
+let atual = window.location.pathname.split("/").pop() || "decks.html";
+
+if(historico.length === 0 || historico[historico.length - 1] !== atual){
+historico.push(atual);
+}
+
+localStorage.setItem("navHistorico", JSON.stringify(historico));
+}
+
+function voltarPagina(){
+somClique();
+mostrarLoading();
+
+setTimeout(()=>{
+let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
+
+historico.pop();
+let anterior = historico.pop();
+
+localStorage.setItem("navHistorico", JSON.stringify(historico));
+
+if(anterior){
+window.location.href = anterior;
+}else{
+window.location.href = "index.html";
+}
+},650);
+}
+
+salvarPaginaAtual();
+
+</script>
+
+
+</body>
+</html>

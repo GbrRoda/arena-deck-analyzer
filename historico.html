@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico de Batalhas</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/clash%20royale%20battle%20history%20arena%20gold%20dark%20cinematic")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.68);
+z-index:-1;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:35px 20px 100px;
+}
+
+h1{
+color:gold;
+text-shadow:0 0 20px gold;
+margin-bottom:20px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+margin-bottom:25px;
+}
+
+.stat{
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,215,0,.35);
+border-radius:15px;
+padding:18px;
+box-shadow:0 0 20px rgba(255,215,0,.18);
+}
+
+.stat h2{
+color:gold;
+font-size:34px;
+}
+
+.card{
+background:rgba(0,0,0,.58);
+border:1px solid rgba(255,255,255,.18);
+padding:18px;
+border-radius:18px;
+margin:18px 0;
+box-shadow:0 0 25px rgba(0,0,0,.4);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 25px rgba(255,215,0,.35);
+border-color:gold;
+}
+
+.resultado{
+font-size:24px;
+color:gold;
+margin-bottom:10px;
+}
+
+.deck-area{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:15px;
+margin-top:15px;
+}
+
+.deck-box{
+background:rgba(255,255,255,.08);
+border-radius:14px;
+padding:14px;
+}
+
+.deck-box h3{
+color:#ffcc00;
+margin-bottom:10px;
+}
+
+.cards{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:7px;
+}
+
+.cards img{
+width:48px;
+border-radius:7px;
+transition:.3s;
+}
+
+.cards img:hover{
+transform:scale(1.2);
+box-shadow:0 0 15px gold;
+}
+
+.info{
+margin-top:12px;
+font-size:14px;
+opacity:.9;
+}
+
+button{
+padding:12px 22px;
+margin:10px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.danger{
+background:linear-gradient(45deg,#ff4444,#aa0000);
+color:white;
+}
+
+.empty{
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,255,255,.18);
+border-radius:18px;
+padding:30px;
+margin-top:25px;
+}
+
+.actions{
+position:fixed;
+bottom:15px;
+left:0;
+right:0;
+z-index:20;
+}
+
+@media(max-width:700px){
+.cards img{
+width:42px;
+}
+
+.actions{
+position:static;
+margin-top:25px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📜 Histórico de Batalhas</h1>
+
+<div class="stats">
+<div class="stat">
+<h2 id="total">0</h2>
+<p>Total de Batalhas</p>
+</div>
+
+<div class="stat">
+<h2 id="vitorias">0</h2>
+<p>Vitórias</p>
+</div>
+
+<div class="stat">
+<h2 id="derrotas">0</h2>
+<p>Derrotas</p>
+</div>
+
+<div class="stat">
+<h2 id="empates">0</h2>
+<p>Empates</p>
+</div>
+
+<div class="stat">
+<h2 id="winrate">0%</h2>
+<p>Winrate Geral</p>
+</div>
+</div>
+
+<div id="historico"></div>
+
+</div>
+
+<div class="actions">
+<button onclick="window.location.href='index.html'">🏠 Menu</button>
+<button onclick="voltarPagina()">🔙 Voltar</button>
+<button class="danger" onclick="limpar()">🗑 Limpar Histórico</button>
+</div>
+
+<script>
+const imgBase="https://royaleapi.github.io/cr-api-assets/cards/";
+
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
+
+const div = document.getElementById("historico");
+
+function cardFile(name){
+return name.toLowerCase()
+.replaceAll(".","")
+.replaceAll(" ","-")
+.replaceAll("'","");
+}
+
+function renderStats(){
+let total=historico.length;
+let vitorias=historico.filter(b => String(b.resultado).includes("Vitória")).length;
+let derrotas=historico.filter(b => String(b.resultado).includes("Derrota")).length;
+let empates=historico.filter(b => String(b.resultado).includes("Empate")).length;
+
+let winrate=total>0 ? Math.round((vitorias/total)*100) : 0;
+
+document.getElementById("total").innerText=total;
+document.getElementById("vitorias").innerText=vitorias;
+document.getElementById("derrotas").innerText=derrotas;
+document.getElementById("empates").innerText=empates;
+document.getElementById("winrate").innerText=winrate+"%";
+}
+
+function renderDeck(deck){
+if(!deck || deck.length===0){
+return "<p>Sem cartas registradas.</p>";
+}
+
+return `
+<div class="cards">
+${deck.map(c=>`<img src="${imgBase}${cardFile(c)}.png" title="${c}" alt="${c}">`).join("")}
+</div>
+`;
+}
+
+function render(){
+div.innerHTML="";
+
+renderStats();
+
+if(historico.length===0){
+div.innerHTML=`
+<div class="empty">
+<h2>Nenhuma batalha ainda...</h2>
+<p>Quando você simular batalhas, elas aparecerão aqui.</p>
+</div>
+`;
+return;
+}
+
+historico.slice().reverse().forEach((b,index)=>{
+div.innerHTML += `
+<div class="card">
+<div class="resultado">${b.resultado || "Resultado não registrado"}</div>
+
+<div class="deck-area">
+
+<div class="deck-box">
+<h3>🧠 Seu Deck</h3>
+${renderDeck(b.player)}
+</div>
+
+<div class="deck-box">
+<h3>👾 Deck Inimigo</h3>
+${renderDeck(b.enemy)}
+</div>
+
+</div>
+
+<div class="info">
+<p>⏱ ${b.data || "Data não registrada"}</p>
+<p>🏰 Sua torre: ${b.hpPlayer ?? "N/A"} HP</p>
+<p>🏯 Torre inimiga: ${b.hpEnemy ?? "N/A"} HP</p>
+<p>📊 Winrate estimado: Você ${b.winPlayer ?? "?"}% x ${b.winEnemy ?? "?"}% Inimigo</p>
+</div>
+</div>
+`;
+});
+}
+
+function limpar(){
+if(!confirm("Tem certeza que deseja limpar todo o histórico?")){
+return;
+}
+
+localStorage.removeItem("historico");
+location.reload();
+}
+
+render();
+
+function salvarPaginaAtual(){
+let pilha = JSON.parse(sessionStorage.getItem("pilhaPaginas")) || [];
+let atual = window.location.pathname.split("/").pop() || "historico.html";
+
+if(pilha[pilha.length - 1] !== atual){
+pilha.push(atual);
+}
+
+sessionStorage.setItem("pilhaPaginas", JSON.stringify(pilha));
+}
+
+function voltarPagina(){
+let pilha = JSON.parse(sessionStorage.getItem("pilhaPaginas")) || [];
+
+pilha.pop();
+let anterior = pilha.pop();
+
+sessionStorage.setItem("pilhaPaginas", JSON.stringify(pilha));
+
+if(anterior){
+window.location.href = anterior;
+}else{
+window.location.href = "index.html";
+}
+}
+
+salvarPaginaAtual();
+
+</script>
+
+</body>
+</html>

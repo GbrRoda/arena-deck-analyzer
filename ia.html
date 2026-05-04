@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach IA PRO</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+overflow-x:hidden;
+background:#111;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/clash%20royale%20strategy%20coach%20arena%20dark%20gold%20cinematic")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:-1;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:30px 20px 100px;
+}
+
+h1{
+color:gold;
+text-shadow:0 0 20px gold;
+margin-bottom:12px;
+}
+
+.subtitle{
+margin-bottom:20px;
+opacity:.9;
+}
+
+.panel{
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,255,255,.18);
+border-radius:18px;
+padding:20px;
+box-shadow:0 0 25px rgba(255,215,0,.25);
+}
+
+.chat{
+height:420px;
+overflow-y:auto;
+text-align:left;
+padding:15px;
+background:rgba(0,0,0,.45);
+border-radius:15px;
+border:1px solid rgba(255,255,255,.15);
+}
+
+.msg{
+margin:12px 0;
+padding:13px;
+border-radius:12px;
+line-height:1.5;
+}
+
+.user{
+background:linear-gradient(45deg,#0066ff,#00d4ff);
+}
+
+.bot{
+background:rgba(20,20,20,.9);
+border:1px solid gold;
+box-shadow:0 0 12px rgba(255,215,0,.25);
+}
+
+.controls{
+margin-top:18px;
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+input{
+width:70%;
+max-width:600px;
+padding:13px;
+border:none;
+border-radius:12px;
+outline:none;
+font-size:15px;
+}
+
+button{
+padding:13px 22px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.quick{
+margin:18px 0;
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.deck-preview{
+margin-top:20px;
+background:rgba(0,0,0,.45);
+border-radius:15px;
+padding:18px;
+border:1px solid rgba(255,255,255,.15);
+}
+
+.card-list{
+margin-top:15px;
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:12px;
+}
+
+.card-box{
+width:90px;
+background:rgba(0,0,0,.5);
+border:1px solid rgba(255,215,0,.45);
+border-radius:12px;
+padding:8px;
+transition:.3s;
+}
+
+.card-box:hover{
+transform:scale(1.12);
+box-shadow:0 0 18px gold;
+}
+
+.card-box img{
+width:65px;
+display:block;
+margin:auto;
+}
+
+.card-box span{
+display:block;
+font-size:11px;
+margin-top:6px;
+color:#ffcc00;
+}
+
+.info-grid{
+margin-top:20px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+}
+
+.info-card{
+background:rgba(0,0,0,.45);
+border:1px solid rgba(255,255,255,.15);
+border-radius:15px;
+padding:15px;
+}
+
+.info-card h3{
+color:gold;
+margin-bottom:8px;
+}
+
+.back{
+position:fixed;
+left:18px;
+bottom:18px;
+}
+
+.home{
+position:fixed;
+right:18px;
+bottom:18px;
+}
+
+@media(max-width:700px){
+input{
+width:100%;
+}
+
+.card-box{
+width:78px;
+}
+
+.card-box img{
+width:58px;
+}
+
+.back,.home{
+position:static;
+margin-top:15px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🤖 Coach IA PRO</h1>
+<p class="subtitle">Converse com a IA, monte decks, veja imagens das cartas, descubra fraquezas e envie para batalha.</p>
+
+<div class="quick">
+<button onclick="montarDeck('cycle')">⚡ Deck Cycle</button>
+<button onclick="montarDeck('bait')">🎯 Deck Bait</button>
+<button onclick="montarDeck('beatdown')">🛡️ Deck Beatdown</button>
+<button onclick="montarDeck('controle')">🧠 Deck Controle</button>
+<button onclick="analisarDeck()">📊 Analisar Meu Deck</button>
+<button onclick="gerarCounter()">👾 Gerar Counter</button>
+<button onclick="mandarParaBatalha()">⚔️ Mandar para Batalha</button>
+</div>
+
+<div class="panel">
+<div class="chat" id="chat"></div>
+
+<div class="controls">
+<input id="input" placeholder="Ex: monte um deck de corredor, analise meu deck, qual minha fraqueza...">
+<button onclick="enviar()">Enviar</button>
+</div>
+</div>
+
+<div class="deck-preview">
+<h2>📦 Deck atual da IA</h2>
+<div class="card-list" id="deckPreview"></div>
+</div>
+
+<div class="info-grid">
+
+<div class="info-card">
+<h3>📊 Tipo do Deck</h3>
+<p id="tipoDeck">Aguardando análise...</p>
+</div>
+
+<div class="info-card">
+<h3>⭐ Nota</h3>
+<p id="notaDeck">Aguardando análise...</p>
+</div>
+
+<div class="info-card">
+<h3>⚠️ Fraquezas</h3>
+<p id="fraquezasDeck">Aguardando análise...</p>
+</div>
+
+<div class="info-card">
+<h3>✅ Pontos Fortes</h3>
+<p id="fortesDeck">Aguardando análise...</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="back">
+<button onclick="window.history.back()">🔙 Voltar</button>
+</div>
+
+<div class="home">
+<button onclick="window.location.href='index.html'">🏠 Menu</button>
+</div>
+
+<script>
+const imgBase="https://royaleapi.github.io/cr-api-assets/cards/";
+
+let deckAtual = JSON.parse(localStorage.getItem("playerCards")) || [];
+
+const decksIA = {
+cycle:["Hog Rider","Musketeer","Cannon","Fireball","The Log","Ice Spirit","Skeletons","Ice Golem"],
+bait:["Princess","Goblin Barrel","Rocket","Inferno Tower","Goblin Gang","Knight","The Log","Ice Spirit"],
+beatdown:["Giant","Witch","Baby Dragon","Musketeer","Fireball","Zap","Mini P.E.K.K.A","Skeletons"],
+controle:["Mega Knight","Ram Rider","Fisherman","Poison","Zap","Witch","Goblin Cage","Goblins"]
+};
+
+function cardFile(name){
+return name.toLowerCase()
+.replaceAll(".","")
+.replaceAll(" ","-")
+.replaceAll("'","");
+}
+
+function addMsg(text,tipo){
+const chat=document.getElementById("chat");
+const div=document.createElement("div");
+div.className="msg "+tipo;
+div.innerHTML=text;
+chat.appendChild(div);
+chat.scrollTop=chat.scrollHeight;
+}
+
+function renderDeck(){
+const preview=document.getElementById("deckPreview");
+preview.innerHTML="";
+
+if(deckAtual.length===0){
+preview.innerHTML="<p>Nenhum deck carregado ainda.</p>";
+return;
+}
+
+deckAtual.forEach(c=>{
+preview.innerHTML+=`
+<div class="card-box">
+<img src="${imgBase}${cardFile(c)}.png" alt="${c}">
+<span>${c}</span>
+</div>
+`;
+});
+}
+
+function enviar(){
+const input=document.getElementById("input");
+const texto=input.value.trim();
+
+if(texto==="") return;
+
+addMsg(texto,"user");
+responder(texto.toLowerCase());
+input.value="";
+}
+
+function responder(txt){
+
+if(txt.includes("corredor") || txt.includes("hog")){
+montarDeck("cycle");
+return;
+}
+
+if(txt.includes("bait") || txt.includes("barril") || txt.includes("log bait")){
+montarDeck("bait");
+return;
+}
+
+if(txt.includes("beatdown") || txt.includes("gigante")){
+montarDeck("beatdown");
+return;
+}
+
+if(txt.includes("controle") || txt.includes("mega")){
+montarDeck("controle");
+return;
+}
+
+if(txt.includes("analisa") || txt.includes("analisar") || txt.includes("fraqueza") || txt.includes("fraco")){
+analisarDeck();
+return;
+}
+
+if(txt.includes("counter")){
+gerarCounter();
+return;
+}
+
+if(txt.includes("batalha")){
+mandarParaBatalha();
+return;
+}
+
+addMsg("Posso montar decks, analisar fraquezas, gerar counters e mandar seu deck para batalha. Tente: <b>monte um deck de corredor</b>, <b>analise meu deck</b> ou <b>gere um counter</b>.","bot");
+}
+
+function montarDeck(tipo){
+deckAtual=[...decksIA[tipo]];
+localStorage.setItem("playerCards",JSON.stringify(deckAtual));
+renderDeck();
+
+let nome={
+cycle:"Hog Cycle",
+bait:"Log Bait",
+beatdown:"Beatdown",
+controle:"Controle com Mega Knight"
+};
+
+addMsg(`Montei um deck <b>${nome[tipo]}</b> para você:<br><br>${deckAtual.join(", ")}`,"bot");
+analisarDeck();
+}
+
+function analisarDeck(){
+if(deckAtual.length===0){
+deckAtual=JSON.parse(localStorage.getItem("playerCards")) || [];
+}
+
+if(deckAtual.length===0){
+addMsg("Você ainda não tem deck salvo. Clique em algum botão de deck ou peça: <b>monte um deck de corredor</b>.","bot");
+return;
+}
+
+let fraquezas=[];
+let pontosFortes=[];
+let tipo="Personalizado";
+
+const possuiAlgum = lista => lista.some(c=>deckAtual.includes(c));
+
+if(possuiAlgum(["Hog Rider","Ice Spirit","Skeletons","Ice Golem"])){
+tipo="Cycle";
+pontosFortes.push("ciclo rápido");
+}
+
+if(possuiAlgum(["Princess","Goblin Barrel","Goblin Gang"])){
+tipo="Log Bait";
+pontosFortes.push("pressão com iscas");
+}
+
+if(possuiAlgum(["Giant","P.E.K.K.A","Mega Knight","Lava Hound","Electro Giant"])){
+pontosFortes.push("boa presença de tanque");
+}
+
+if(possuiAlgum(["Fireball","Rocket","Poison","Lightning"])){
+pontosFortes.push("possui feitiço pesado");
+}else{
+fraquezas.push("falta feitiço pesado");
+}
+
+if(possuiAlgum(["Zap","The Log","Arrows","Giant Snowball"])){
+pontosFortes.push("possui feitiço pequeno");
+}else{
+fraquezas.push("falta feitiço pequeno");
+}
+
+if(possuiAlgum(["Musketeer","Baby Dragon","Electro Wizard","Minions","Tesla","Electro Dragon","Phoenix"])){
+pontosFortes.push("tem resposta contra aéreo");
+}else{
+fraquezas.push("fraco contra tropas aéreas");
+}
+
+if(possuiAlgum(["Cannon","Tesla","Inferno Tower","Goblin Cage","Bomb Tower"])){
+pontosFortes.push("tem construção defensiva");
+}else{
+fraquezas.push("pode sofrer contra Hog Rider, Ram Rider e Royal Giant");
+}
+
+if(!possuiAlgum(["Hog Rider","Goblin Barrel","Giant","Balloon","Royal Giant","Ram Rider","Miner","Lava Hound"])){
+fraquezas.push("falta condição de vitória clara");
+}
+
+let nota=10 - fraquezas.length*1.2;
+
+if(deckAtual.length<8){
+nota-=1.5;
+fraquezas.push("deck incompleto");
+}
+
+if(nota<4) nota=4;
+
+nota=nota.toFixed(1);
+
+document.getElementById("tipoDeck").innerText=tipo;
+document.getElementById("notaDeck").innerText=nota+"/10";
+document.getElementById("fraquezasDeck").innerText=fraquezas.length ? fraquezas.join(", ") : "Nenhuma fraqueza grave detectada.";
+document.getElementById("fortesDeck").innerText=pontosFortes.length ? pontosFortes.join(", ") : "Nenhum ponto forte claro encontrado.";
+
+addMsg(`
+<b>📊 Análise do deck</b><br>
+Tipo provável: <b>${tipo}</b><br>
+Nota estimada: <b>${nota}/10</b><br><br>
+<b>Pontos fortes:</b><br>
+${pontosFortes.length ? pontosFortes.map(p=>"✅ "+p).join("<br>") : "Nenhum ponto forte claro encontrado."}
+<br><br>
+<b>Fraquezas:</b><br>
+${fraquezas.length ? fraquezas.map(f=>"⚠️ "+f).join("<br>") : "Nenhuma fraqueza grave detectada."}
+`,"bot");
+
+sugerirTroca(fraquezas);
+renderDeck();
+}
+
+function sugerirTroca(fraquezas){
+if(fraquezas.length===0) return;
+
+let sugestao="";
+
+if(fraquezas.includes("falta feitiço pesado")){
+sugestao="Troque uma carta barata por <b>Fireball</b>.";
+}
+else if(fraquezas.includes("falta feitiço pequeno")){
+sugestao="Adicione <b>The Log</b> ou <b>Zap</b>.";
+}
+else if(fraquezas.includes("fraco contra tropas aéreas")){
+sugestao="Adicione <b>Musketeer</b> ou <b>Tesla</b>.";
+}
+else if(fraquezas.includes("pode sofrer contra Hog Rider, Ram Rider e Royal Giant")){
+sugestao="Adicione <b>Cannon</b> ou <b>Tesla</b>.";
+}
+else if(fraquezas.includes("falta condição de vitória clara")){
+sugestao="Adicione <b>Hog Rider</b>, <b>Goblin Barrel</b> ou <b>Giant</b>.";
+}
+
+if(sugestao){
+addMsg(`<b>🔁 Sugestão automática:</b><br>${sugestao}`,"bot");
+}
+}
+
+function gerarCounter(){
+let base=JSON.parse(localStorage.getItem("playerCards")) || deckAtual;
+
+if(base.length===0){
+addMsg("Monte ou salve um deck primeiro para eu gerar um counter.","bot");
+return;
+}
+
+let counter=[];
+
+if(base.includes("Hog Rider") || base.includes("Ram Rider") || base.includes("Royal Hogs")){
+counter=["Tesla","Cannon","Knight","Musketeer","Fireball","The Log","Skeletons","Ice Spirit"];
+}
+else if(base.includes("Mega Knight") || base.includes("Giant") || base.includes("P.E.K.K.A") || base.includes("Royal Giant")){
+counter=["Inferno Tower","Mini P.E.K.K.A","Valkyrie","Musketeer","Zap","Fireball","Skeletons","Ice Spirit"];
+}
+else if(base.includes("Goblin Barrel") || base.includes("Princess") || base.includes("Goblin Gang")){
+counter=["The Log","Arrows","Valkyrie","Tesla","Fireball","Knight","Ice Spirit","Musketeer"];
+}
+else if(base.includes("Lava Hound") || base.includes("Balloon") || base.includes("Baby Dragon")){
+counter=["Inferno Tower","Musketeer","Electro Wizard","Minions","Fireball","Zap","Knight","Arrows"];
+}
+else{
+counter=["Knight","Musketeer","Tesla","Fireball","The Log","Hog Rider","Skeletons","Ice Spirit"];
+}
+
+localStorage.setItem("enemyCards",JSON.stringify(counter));
+
+addMsg(`👾 Counter gerado contra seu deck:<br><br>${counter.join(", ")}`,"bot");
+}
+
+function mandarParaBatalha(){
+if(deckAtual.length!==8){
+addMsg("Seu deck ainda não tem 8 cartas. Monte um deck primeiro.","bot");
+return;
+}
+
+localStorage.setItem("playerCards",JSON.stringify(deckAtual));
+
+let enemy=JSON.parse(localStorage.getItem("enemyCards")) || [];
+
+if(enemy.length!==8){
+gerarCounter();
+}
+
+addMsg("Tudo pronto! Seu deck foi enviado para a batalha.","bot");
+
+setTimeout(()=>{
+window.location.href="batalha.html";
+},900);
+}
+
+document.getElementById("input").addEventListener("keydown",function(e){
+if(e.key==="Enter"){
+enviar();
+}
+});
+
+addMsg("Olá! Eu sou o Coach IA PRO. Posso montar decks, analisar fraquezas, mostrar imagens das cartas, sugerir counters e preparar sua batalha.","bot");
+
+renderDeck();
+
+if(deckAtual.length>0){
+analisarDeck();
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* =========================
+   🎮 FUNDO ESTILO CLASH ROYALE (WALLPAPER)
+========================= */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+
+    /* 🔥 FUNDO FORÇADO (SEM ::before, SEM ::after) */
+    background: url("https://i.imgur.com/9aKQ9Zf.jpg") center/cover no-repeat fixed;
+}
+
+/* remove qualquer camada antiga que esteja cobrindo */
+body::before,
+body::after {
+    display: none !important;
+}
+
+/* =========================
+   ⚔️ SPLASH SCREEN (ANIMAÇÃO ARENA)
+========================= */
+#splash {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 999;
+}
+
+.card {
+    text-align: center;
+    padding: 30px;
+
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 15px;
+
+    animation: spawnArena 1.2s ease;
+}
+
+/* botão do splash */
+.card button {
+    margin-top: 20px;
+    padding: 12px 30px;
+
+    background: linear-gradient(45deg, #ffcc00, #ff8800);
+    border: none;
+    border-radius: 10px;
+
+    font-weight: bold;
+    cursor: pointer;
+
+    animation: pulse 1.5s infinite;
+    transition: 0.3s;
+}
+
+.card button:hover {
+    transform: scale(1.1);
+}
+
+/* =========================
+   📌 MENU
+========================= */
+.menu {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 2px solid #ff0095;
+    z-index: 10;
+}
+
+.menu a {
+    color: white;
+    margin-left: 15px;
+    text-decoration: none;
+}
+
+/* =========================
+   🏠 CONTEÚDO PRINCIPAL
+========================= */
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    position: relative;
+    z-index: 2;
+
+    animation: spawnArena 1s ease;
+}
+
+h1 {
+    color: #ffcc00;
+    font-size: 40px;
+    text-shadow: 0 0 10px black;
+
+    animation: glow 2s infinite;
+}
+
+p {
+    margin-top: 15px;
+}
+
+/* BOTÃO */
+.btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+
+    background: linear-gradient(45deg, #ffcc00, #ff8800);
+    color: black;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* esconder site inicialmente */
+.hidden {
+    display: none;
+}
+
+/* =========================
+   ✨ ANIMAÇÕES
+========================= */
+
+@keyframes spawnArena {
+    0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(40px);
+        filter: blur(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes glow {
+    0% { text-shadow: 0 0 10px #ff0000; }
+    50% { text-shadow: 0 0 25px #ffcc00; }
+    100% { text-shadow: 0 0 10px #ff0000; }
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 10px #ffcc00; }
+    50% { box-shadow: 0 0 25px #ff8800; }
+    100% { box-shadow: 0 0 10px #ffcc00; }
+}

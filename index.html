@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arena Deck PRO</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+min-height:100vh;
+overflow-x:hidden;
+transition:opacity .45s ease;
+}
+
+body.fade-out{
+opacity:0;
+}
+
+/* FUNDO */
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/fantasy%20battle%20arena%20cinematic%20gold%20blue%20strategy%20game")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-3;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.78));
+z-index:-2;
+}
+
+/* LOADING */
+#loading{
+position:fixed;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+background:radial-gradient(circle,rgba(40,20,0,.75),rgba(0,0,0,.95));
+z-index:9999;
+}
+
+#loading.active{
+display:flex;
+}
+
+.loader-crown{
+font-size:70px;
+animation:loadingPulse 1s infinite alternate;
+}
+
+.loader-text{
+margin-top:18px;
+font-weight:bold;
+color:gold;
+text-shadow:0 0 18px gold;
+}
+
+/* PARTÍCULAS */
+.particles{
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:-1;
+}
+
+.particles span{
+position:absolute;
+width:5px;
+height:5px;
+background:gold;
+border-radius:50%;
+box-shadow:0 0 15px gold;
+animation:float 8s infinite ease-in-out;
+}
+
+.particles span:nth-child(1){left:10%;top:20%;animation-delay:0s;}
+.particles span:nth-child(2){left:25%;top:70%;animation-delay:1s;}
+.particles span:nth-child(3){left:45%;top:30%;animation-delay:2s;}
+.particles span:nth-child(4){left:65%;top:80%;animation-delay:3s;}
+.particles span:nth-child(5){left:80%;top:25%;animation-delay:4s;}
+.particles span:nth-child(6){left:90%;top:60%;animation-delay:5s;}
+.particles span:nth-child(7){left:15%;top:85%;animation-delay:2.5s;}
+.particles span:nth-child(8){left:72%;top:45%;animation-delay:1.5s;}
+
+/* PRIMEIRA PARTE / SPLASH */
+#splash{
+position:fixed;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+background:radial-gradient(circle,rgba(0,0,0,.25),rgba(0,0,0,.9));
+z-index:999;
+transition:.6s;
+}
+
+.splash-card{
+text-align:center;
+padding:35px;
+max-width:540px;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(10px);
+border-radius:22px;
+border:1px solid rgba(255,255,255,.2);
+box-shadow:0 0 35px rgba(255,215,0,.35);
+animation:fadeUp 1s ease, cardGlow 2.5s infinite;
+}
+
+.splash-card h1{
+color:#ffcc00;
+font-size:42px;
+text-shadow:0 0 25px gold;
+animation:glow 2s infinite;
+}
+
+.splash-card p{
+margin-top:15px;
+font-size:18px;
+line-height:1.5;
+}
+
+/* SEGUNDA PARTE / MENU */
+.menu{
+position:fixed;
+top:0;
+width:100%;
+padding:18px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(0,0,0,.78);
+border-bottom:2px solid gold;
+z-index:10;
+backdrop-filter:blur(8px);
+}
+
+.logo{
+color:#ffcc00;
+font-weight:bold;
+font-size:20px;
+text-shadow:0 0 15px gold;
+}
+
+.menu-toggle{
+font-size:30px;
+cursor:pointer;
+color:gold;
+transition:.3s;
+}
+
+.menu-toggle:hover{
+transform:scale(1.2) rotate(8deg);
+text-shadow:0 0 20px gold;
+}
+
+.nav-hidden{
+position:absolute;
+top:72px;
+right:20px;
+background:rgba(0,0,0,.92);
+padding:18px;
+border-radius:14px;
+display:flex;
+flex-direction:column;
+gap:12px;
+opacity:0;
+pointer-events:none;
+transform:translateY(-10px);
+transition:.3s;
+border:1px solid rgba(255,215,0,.4);
+box-shadow:0 0 25px rgba(255,215,0,.25);
+}
+
+.nav-hidden.active{
+opacity:1;
+pointer-events:all;
+transform:translateY(0);
+}
+
+.nav-hidden a{
+color:white;
+text-decoration:none;
+padding:8px 15px;
+border-radius:10px;
+transition:.3s;
+}
+
+.nav-hidden a:hover{
+background:gold;
+color:black;
+box-shadow:0 0 18px gold;
+}
+
+.container{
+min-height:100vh;
+padding:120px 20px 80px;
+display:flex;
+flex-direction:column;
+align-items:center;
+text-align:center;
+animation:fadeUp 1s ease;
+}
+
+.hero h1{
+color:#ffcc00;
+font-size:52px;
+text-shadow:0 0 25px black,0 0 20px gold;
+}
+
+.hero p{
+max-width:650px;
+margin:20px auto;
+text-align:center;
+font-size:18px;
+line-height:1.6;
+opacity:0.9;
+}
+
+/* BOTÕES */
+.buttons{
+margin-top:28px;
+display:flex;
+gap:18px;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.btn,.splash-btn,.fixed-btn{
+position:relative;
+margin-top:15px;
+padding:15px 30px;
+border-radius:14px;
+font-weight:bold;
+text-decoration:none;
+border:none;
+cursor:pointer;
+overflow:hidden;
+transition:.35s;
+font-size:16px;
+}
+
+.btn::before,
+.splash-btn::before,
+.fixed-btn::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:80%;
+height:100%;
+background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);
+transform:skewX(-25deg);
+transition:.5s;
+}
+
+.btn:hover::before,
+.splash-btn:hover::before,
+.fixed-btn:hover::before{
+left:140%;
+}
+
+.primary,.splash-btn,.fixed-btn{
+background:linear-gradient(45deg,#ffcc00,#ff8800);
+color:black;
+box-shadow:0 0 18px gold;
+animation:pulseGold 1.8s infinite;
+}
+
+.secondary{
+background:rgba(0,0,0,.65);
+color:white;
+border:1px solid rgba(255,255,255,.25);
+box-shadow:0 0 15px rgba(255,255,255,.15);
+}
+
+.blue{
+background:linear-gradient(45deg,#00d4ff,#0066ff);
+color:white;
+box-shadow:0 0 18px #00d4ff;
+}
+
+.purple{
+background:linear-gradient(45deg,#b400ff,#ff00aa);
+color:white;
+box-shadow:0 0 18px #ff00aa;
+}
+
+.green{
+background:linear-gradient(45deg,#00ff99,#00aa66);
+color:white;
+box-shadow:0 0 18px #00ff99;
+}
+
+.btn:hover,.splash-btn:hover,.fixed-btn:hover{
+transform:scale(1.08) translateY(-4px);
+box-shadow:0 0 35px gold;
+}
+
+/* CONTADORES */
+.stats{
+margin-top:50px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:18px;
+width:100%;
+max-width:950px;
+}
+
+.stat-card{
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,255,255,.18);
+border-radius:18px;
+padding:22px;
+backdrop-filter:blur(7px);
+box-shadow:0 0 20px rgba(0,0,0,.35);
+transition:.35s;
+}
+
+.stat-card:hover{
+transform:translateY(-7px);
+border-color:gold;
+box-shadow:0 0 28px rgba(255,215,0,.45);
+}
+
+.stat-card h2{
+color:gold;
+font-size:34px;
+}
+
+/* COMO FUNCIONA */
+.how,.modes{
+margin-top:55px;
+width:100%;
+max-width:1000px;
+}
+
+.how h2,.modes h2{
+color:gold;
+margin-bottom:22px;
+text-shadow:0 0 15px black;
+}
+
+.steps,.features{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:20px;
+}
+
+.step,.feature-card{
+background:rgba(0,0,0,.52);
+border:1px solid rgba(255,255,255,.18);
+border-radius:20px;
+padding:24px;
+transition:.35s;
+backdrop-filter:blur(7px);
+box-shadow:0 0 20px rgba(0,0,0,.35);
+}
+
+.step:hover,.feature-card:hover{
+transform:translateY(-8px) scale(1.03);
+border-color:gold;
+box-shadow:0 0 30px rgba(255,215,0,.45);
+}
+
+.step span{
+font-size:36px;
+display:block;
+margin-bottom:10px;
+}
+
+.feature-card h3{
+color:gold;
+margin-bottom:10px;
+}
+
+/* BOTÃO FIXO */
+.fixed-btn{
+position:fixed;
+right:20px;
+bottom:20px;
+z-index:30;
+}
+
+.footer{
+margin-top:45px;
+font-size:13px;
+opacity:.85;
+}
+
+.hidden{
+display:none;
+}
+
+/* ANIMAÇÕES */
+@keyframes float{
+0%,100%{transform:translateY(0) scale(1);opacity:.5;}
+50%{transform:translateY(-35px) scale(1.6);opacity:1;}
+}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(35px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes glow{
+0%{text-shadow:0 0 10px gold;}
+50%{text-shadow:0 0 35px #ff8800;}
+100%{text-shadow:0 0 10px gold;}
+}
+
+@keyframes pulseGold{
+0%{box-shadow:0 0 12px gold;}
+50%{box-shadow:0 0 30px orange;}
+100%{box-shadow:0 0 12px gold;}
+}
+
+@keyframes cardGlow{
+0%{box-shadow:0 0 25px rgba(255,215,0,.25);}
+50%{box-shadow:0 0 55px rgba(255,140,0,.65);}
+100%{box-shadow:0 0 25px rgba(255,215,0,.25);}
+}
+
+@keyframes loadingPulse{
+from{transform:scale(1) rotate(-6deg);text-shadow:0 0 15px gold;}
+to{transform:scale(1.25) rotate(6deg);text-shadow:0 0 45px orange;}
+}
+
+@media(max-width:700px){
+.hero h1{font-size:36px;}
+.menu{padding:16px 20px;}
+.buttons{flex-direction:column;width:90%;}
+.btn{width:100%;}
+.fixed-btn{right:12px;bottom:12px;padding:12px 18px;font-size:14px;}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+<div class="loader-crown">👑</div>
+<div class="loader-text">Carregando arena...</div>
+</div>
+
+<div class="particles">
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+</div>
+
+<!-- PRIMEIRA PARTE -->
+<div id="splash">
+<div class="splash-card">
+<h1>👑 A ARENA TE ESPERA </h1>
+<p>Monte decks, enfrente counters, analise sua estratégia e prove que você domina a arena.</p>
+<button class="splash-btn" onclick="entrar()">⚔️ ENTRAR NA ARENA ⚔️</button>
+</div>
+</div>
+
+<!-- SEGUNDA PARTE / MENU PRINCIPAL -->
+<div id="site" class="hidden">
+
+<header class="menu">
+<div class="logo">⚔️ Arena Deck PRO ⚔️</div>
+
+<div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+<nav id="navMenu" class="nav-hidden">
+<a href="decks.html" class="nav-link">⚔️ Decks</a>
+<a href="batalha.html" class="nav-link">🔥 Batalha</a>
+<a href="historico.html" class="nav-link">📜 Histórico</a>
+<a href="ia.html" class="nav-link">🤖 Coach IA</a>
+<a href="criador.html" class="nav-link">👤 Sobre o Criador</a>
+<a href="introducao.html" class="nav-link">📖 Sobre o Guia</a>
+</nav>
+</header>
+
+<main class="container">
+
+<section class="hero">
+<h1>⚔️ Prepare seu deck ⚔️</h1>
+<p> Entre na arena, monte sua estratégia, compare decks e descubra se sua composição está pronta para vencer.
+</p>
+
+<div class="buttons">
+<a href="decks.html" class="btn primary nav-link">⚔️ Montar Deck</a>
+<a href="batalha.html" class="btn blue nav-link">🔥 Simular Batalha</a>
+<a href="historico.html" class="btn green nav-link">📜 Histórico</a>
+<a href="ia.html" class="btn purple nav-link">🤖 Coach IA</a>
+<a href="criador.html" class="btn purple nav-link">👤 Sobre o Criador</a>
+<a href="introducao.html" class="btn secondary nav-link">📖 Sobre o Guia</a>
+</div>
+</section>
+
+<section class="stats">
+<div class="stat-card">
+<h2>100+</h2>
+<p>Cartas disponíveis</p>
+</div>
+
+<div class="stat-card">
+<h2>3</h2>
+<p>Modos de inimigo</p>
+</div>
+
+<div class="stat-card">
+<h2>PRO</h2>
+<p>Coach automático</p>
+</div>
+
+<div class="stat-card">
+<h2>2025</h2>
+<p>Projeto em desenvolvimento</p>
+</div>
+</section>
+
+<section class="how">
+<h2>🧭 Como funciona</h2>
+
+<div class="steps">
+<div class="step">
+<span>1️⃣</span>
+<h3>Monte seu deck</h3>
+<p>Escolha cartas manualmente ou use decks prontos.</p>
+</div>
+
+<div class="step">
+<span>2️⃣</span>
+<h3>Escolha o inimigo</h3>
+<p>Use modo aleatório, meta ou counter.</p>
+</div>
+
+<div class="step">
+<span>3️⃣</span>
+<h3>Simule a batalha</h3>
+<p>Compare força, defesa, estratégia e resultado.</p>
+</div>
+
+<div class="step">
+<span>4️⃣</span>
+<h3>Veja sua evolução</h3>
+<p>Acompanhe histórico, vitórias, derrotas e decks usados.</p>
+</div>
+</div>
+</section>
+
+<section class="modes">
+<h2>🎮 Modos do sistema</h2>
+
+<div class="features">
+<div class="feature-card">
+<h3>🧠 Coach Automático</h3>
+<p>Receba sugestões, veja fraquezas e melhore seu deck com análise inteligente.</p>
+</div>
+
+<div class="feature-card">
+<h3>🤖 Coach IA</h3>
+<p>Converse com a IA, peça decks, receba dicas, counters e análises estratégicas.</p>
+</div>
+
+<div class="feature-card">
+<h3>⚔️ Simulador de Batalha</h3>
+<p>Compare seu deck contra inimigos aleatórios, meta ou counters personalizados.</p>
+</div>
+
+<div class="feature-card">
+<h3>📊 Análise PRO</h3>
+<p>Veja custo médio de elixir, nota do deck, tipo de estratégia e possíveis melhorias.</p>
+</div>
+
+<div class="feature-card">
+<h3>📜 Histórico</h3>
+<p>Veja suas batalhas anteriores, resultados, decks usados e data da partida.</p>
+</div>
+
+<div class="feature-card">
+<h3>👤 Sobre o Criador</h3>
+<p>Conheça a história do projeto, minha carreira e acompanhe minha evolução como desenvolvedor.</p>
+</div>
+</div>
+</section>
+
+<div class="footer">
+Projeto educativo inspirado em jogos de estratégia. Desenvolvido por Gabriel Roda para estudo de HTML, CSS e JavaScript.
+</div>
+
+</main>
+
+<a href="decks.html" class="fixed-btn nav-link">⚔️ Entrar na Arena</a>
+
+</div>
+
+<script>
+function entrar(){
+const splash=document.getElementById("splash");
+const site=document.getElementById("site");
+
+splash.style.opacity="0";
+
+setTimeout(()=>{
+splash.style.display="none";
+site.classList.remove("hidden");
+},600);
+}
+
+function toggleMenu(){
+document.getElementById("navMenu").classList.toggle("active");
+}
+
+function somClique(){
+try{
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const oscillator = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+
+oscillator.type = "triangle";
+oscillator.frequency.setValueAtTime(520, audioCtx.currentTime);
+
+gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+oscillator.connect(gain);
+gain.connect(audioCtx.destination);
+
+oscillator.start();
+oscillator.stop(audioCtx.currentTime + 0.15);
+}catch(e){}
+}
+
+function mostrarLoading(){
+const loading=document.getElementById("loading");
+
+if(loading){
+loading.classList.add("active");
+}
+
+document.body.classList.add("fade-out");
+}
+
+/* SISTEMA DE HISTÓRICO MANUAL */
+function salvarPaginaAtual(){
+let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
+let atual = window.location.pathname.split("/").pop() || "index.html";
+
+if(historico.length === 0 || historico[historico.length - 1] !== atual){
+historico.push(atual);
+}
+
+localStorage.setItem("navHistorico",JSON.stringify(historico));
+}
+
+function navegarPara(pagina){
+somClique();
+
+let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
+let atual = window.location.pathname.split("/").pop() || "index.html";
+
+if(historico.length === 0 || historico[historico.length - 1] !== atual){
+historico.push(atual);
+}
+
+localStorage.setItem("navHistorico",JSON.stringify(historico));
+
+mostrarLoading();
+
+setTimeout(()=>{
+window.location.href=pagina;
+},650);
+}
+
+function voltarPagina(){
+somClique();
+mostrarLoading();
+
+setTimeout(()=>{
+let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
+
+historico.pop();
+
+let anterior = historico.pop();
+
+localStorage.setItem("navHistorico",JSON.stringify(historico));
+
+if(anterior){
+window.location.href=anterior;
+}else{
+window.location.href="index.html";
+}
+},650);
+}
+
+document.querySelectorAll(".nav-link").forEach(link=>{
+link.addEventListener("click",function(e){
+e.preventDefault();
+const destino=this.getAttribute("href");
+navegarPara(destino);
+});
+});
+
+salvarPaginaAtual();
+</script>
+
+</body>
+</html>

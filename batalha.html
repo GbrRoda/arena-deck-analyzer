@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batalha Clash</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/clash%20royale%20battle%20arena%20cinematic%20strategy")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.5);
+z-index:-1;
+}
+
+.topbar{
+position:fixed;
+top:0;
+width:100%;
+padding:15px;
+background:rgba(0,0,0,.8);
+border-bottom:2px solid gold;
+z-index:10;
+font-weight:bold;
+}
+
+.container{
+padding-top:85px;
+padding-bottom:90px;
+}
+
+.battle-area{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:35px;
+flex-wrap:wrap;
+margin-top:25px;
+}
+
+.deck-box{
+width:390px;
+background:rgba(0,0,0,.55);
+border-radius:18px;
+padding:20px;
+box-shadow:0 0 25px rgba(255,215,0,.25);
+border:1px solid rgba(255,255,255,.15);
+}
+
+.deck-box h2{
+color:gold;
+margin-bottom:10px;
+}
+
+.tower{
+font-size:65px;
+animation:towerPulse 1.2s infinite alternate;
+}
+
+.tower-life{
+width:300px;
+height:24px;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+margin:12px auto;
+border:2px solid white;
+}
+
+.life-fill{
+height:100%;
+width:100%;
+background:linear-gradient(90deg,lime,gold,red);
+transition:1s;
+}
+
+.cards{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:8px;
+margin-top:15px;
+}
+
+.card{
+width:68px;
+border-radius:8px;
+animation:cardSpawn .6s ease;
+transition:.3s;
+}
+
+.card:hover{
+transform:scale(1.15);
+box-shadow:0 0 15px gold;
+}
+
+.vs{
+font-size:85px;
+font-weight:bold;
+color:#ffcc00;
+text-shadow:0 0 25px red;
+animation:blink 1s infinite;
+}
+
+.result{
+margin:30px auto;
+font-size:20px;
+background:rgba(0,0,0,.45);
+border-radius:16px;
+padding:20px;
+max-width:900px;
+}
+
+.crown{
+font-size:80px;
+animation:crown .8s infinite alternate;
+}
+
+.logs{
+max-height:220px;
+overflow:auto;
+margin-top:15px;
+background:rgba(0,0,0,.45);
+border-radius:12px;
+padding:15px;
+font-size:15px;
+}
+
+.winrate-box{
+display:flex;
+justify-content:center;
+gap:25px;
+flex-wrap:wrap;
+margin-top:20px;
+}
+
+.win-card{
+background:rgba(0,0,0,.55);
+border-radius:14px;
+padding:15px;
+min-width:220px;
+border:1px solid rgba(255,255,255,.15);
+}
+
+button{
+margin:10px;
+padding:13px 26px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.actions{
+margin-top:25px;
+}
+
+@keyframes blink{
+0%{opacity:1;transform:scale(1);}
+50%{opacity:.35;transform:scale(1.15);}
+100%{opacity:1;transform:scale(1);}
+}
+
+@keyframes cardSpawn{
+from{opacity:0;transform:translateY(30px) scale(.7);}
+to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+@keyframes crown{
+from{transform:scale(1) rotate(-5deg);text-shadow:0 0 10px gold;}
+to{transform:scale(1.2) rotate(5deg);text-shadow:0 0 35px gold;}
+}
+
+@keyframes towerPulse{
+from{transform:scale(1);}
+to{transform:scale(1.08);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">⚔️ Arena de Batalha PRO</div>
+
+<div class="container">
+
+<h1>⚔️ Batalha Iniciada ⚔️</h1>
+
+<div class="winrate-box">
+<div class="win-card">
+<h3>📊 Winrate Estimado</h3>
+<p id="winrateText">Aguardando simulação...</p>
+</div>
+
+<div class="win-card">
+<h3>🧠 Análise da IA</h3>
+<p id="iaText">Comparando decks...</p>
+</div>
+</div>
+
+<div class="battle-area">
+
+<div class="deck-box" id="playerBox">
+<h2>🧠 Você</h2>
+<div class="tower">🏰</div>
+<p>Vida da Torre: <span id="playerHpText">3000</span></p>
+<div class="tower-life">
+<div class="life-fill" id="playerLife"></div>
+</div>
+<div class="cards" id="playerCards"></div>
+</div>
+
+<div class="vs">VS</div>
+
+<div class="deck-box" id="enemyBox">
+<h2>👾 Inimigo</h2>
+<div class="tower">🏯</div>
+<p>Vida da Torre: <span id="enemyHpText">3000</span></p>
+<div class="tower-life">
+<div class="life-fill" id="enemyLife"></div>
+</div>
+<div class="cards" id="enemyCards"></div>
+</div>
+
+</div>
+
+<button onclick="simularBatalha()">⚔️ Simular Batalha</button>
+
+<div class="result" id="result"></div>
+
+<div class="actions">
+<button onclick="window.history.back()">🔙 Voltar</button>
+<button onclick="window.location.href='decks.html'">🔁 Revanche</button>
+<button onclick="window.location.href='historico.html'">📜 Histórico</button>
+<button onclick="window.location.href='index.html'">🏠 Menu</button>
+</div>
+
+</div>
+
+<script>
+const imgBase="https://royaleapi.github.io/cr-api-assets/cards/";
+
+let player = JSON.parse(localStorage.getItem("playerCards")) || [];
+let enemy = JSON.parse(localStorage.getItem("enemyCards")) || [];
+let batalhaJaSalva = false;
+
+const cardStats = {
+"Mega Knight":{atk:95,def:90,spd:55,type:"tank"},
+"P.E.K.K.A":{atk:100,def:95,spd:40,type:"tank"},
+"Mini P.E.K.K.A":{atk:90,def:65,spd:70,type:"dps"},
+"Hog Rider":{atk:88,def:60,spd:95,type:"win"},
+"Ram Rider":{atk:86,def:70,spd:80,type:"win"},
+"Goblin Barrel":{atk:82,def:45,spd:90,type:"bait"},
+"Princess":{atk:76,def:45,spd:85,type:"bait"},
+"Rocket":{atk:95,def:35,spd:40,type:"spell"},
+"Fireball":{atk:85,def:35,spd:65,type:"spell"},
+"Poison":{atk:80,def:45,spd:55,type:"spell"},
+"Zap":{atk:65,def:30,spd:95,type:"spell"},
+"The Log":{atk:78,def:35,spd:90,type:"spell"},
+"Arrows":{atk:74,def:35,spd:80,type:"spell"},
+"Cannon":{atk:65,def:85,spd:45,type:"building"},
+"Tesla":{atk:76,def:88,spd:55,type:"building"},
+"Inferno Tower":{atk:92,def:92,spd:35,type:"building"},
+"Goblin Cage":{atk:70,def:85,spd:45,type:"building"},
+"Knight":{atk:72,def:78,spd:65,type:"miniTank"},
+"Valkyrie":{atk:82,def:82,spd:58,type:"miniTank"},
+"Musketeer":{atk:82,def:60,spd:70,type:"range"},
+"Wizard":{atk:85,def:55,spd:60,type:"range"},
+"Electro Wizard":{atk:84,def:58,spd:72,type:"range"},
+"Magic Archer":{atk:83,def:50,spd:78,type:"range"},
+"Baby Dragon":{atk:80,def:75,spd:65,type:"air"},
+"Electro Dragon":{atk:84,def:76,spd:55,type:"air"},
+"Minions":{atk:70,def:45,spd:82,type:"air"},
+"Witch":{atk:80,def:65,spd:58,type:"spawner"},
+"Skeletons":{atk:50,def:30,spd:95,type:"cycle"},
+"Ice Spirit":{atk:45,def:25,spd:100,type:"cycle"},
+"Ice Golem":{atk:55,def:82,spd:65,type:"cycle"},
+"Goblins":{atk:62,def:35,spd:90,type:"cycle"},
+"Goblin Gang":{atk:72,def:45,spd:85,type:"bait"},
+"Fisherman":{atk:74,def:72,spd:65,type:"control"},
+"Bandit":{atk:80,def:62,spd:88,type:"dash"},
+"Royal Ghost":{atk:82,def:68,spd:78,type:"dash"}
+};
+
+function cardFile(name){
+return name.toLowerCase().replaceAll(" ","-").replaceAll(".","").replaceAll("'","");
+}
+
+function getStats(card){
+return cardStats[card] || {atk:70,def:60,spd:65,type:"normal"};
+}
+
+function mostrarCartas(){
+const p=document.getElementById("playerCards");
+const e=document.getElementById("enemyCards");
+
+p.innerHTML="";
+e.innerHTML="";
+
+player.forEach(carta=>{
+p.innerHTML+=`<img class="card" src="${imgBase}${cardFile(carta)}.png" title="${carta}">`;
+});
+
+enemy.forEach(carta=>{
+e.innerHTML+=`<img class="card" src="${imgBase}${cardFile(carta)}.png" title="${carta}">`;
+});
+}
+
+function calcularDeck(deck){
+let atk=0,def=0,spd=0;
+
+deck.forEach(carta=>{
+let s=getStats(carta);
+atk+=s.atk;
+def+=s.def;
+spd+=s.spd;
+});
+
+return {
+atk,
+def,
+spd,
+total:atk+def+spd
+};
+}
+
+function temTipo(deck,tipo){
+return deck.some(c=>getStats(c).type===tipo);
+}
+
+function analisarIA(){
+let texto="";
+
+if(temTipo(player,"win") && temTipo(enemy,"building")){
+texto+="O inimigo tem construção para segurar sua condição de vitória. ";
+}
+
+if(temTipo(player,"bait") && temTipo(enemy,"spell")){
+texto+="O inimigo possui feitiços bons contra bait. ";
+}
+
+if(temTipo(player,"tank") && temTipo(enemy,"dps")){
+texto+="O inimigo tem DPS forte contra tanques. ";
+}
+
+if(texto===""){
+texto="Os decks estão equilibrados. A vitória depende da força geral e da defesa.";
+}
+
+document.getElementById("iaText").innerText=texto;
+}
+
+function calcularWinrate(){
+let p=calcularDeck(player);
+let e=calcularDeck(enemy);
+
+let bonusPlayer=0;
+let bonusEnemy=0;
+
+if(temTipo(player,"win") && !temTipo(enemy,"building")) bonusPlayer+=70;
+if(temTipo(enemy,"win") && !temTipo(player,"building")) bonusEnemy+=70;
+
+if(temTipo(player,"bait") && !temTipo(enemy,"spell")) bonusPlayer+=55;
+if(temTipo(enemy,"bait") && !temTipo(player,"spell")) bonusEnemy+=55;
+
+if(temTipo(player,"tank") && !temTipo(enemy,"dps")) bonusPlayer+=45;
+if(temTipo(enemy,"tank") && !temTipo(player,"dps")) bonusEnemy+=45;
+
+let scoreP=p.total+bonusPlayer;
+let scoreE=e.total+bonusEnemy;
+
+let total=scoreP+scoreE;
+
+let winP=Math.round((scoreP/total)*100);
+let winE=100-winP;
+
+document.getElementById("winrateText").innerText=`Você ${winP}% x ${winE}% Inimigo`;
+
+return {winP,winE,scoreP,scoreE};
+}
+
+function salvarHistorico(resultadoFinal,hpPlayer,hpEnemy,win){
+if(batalhaJaSalva) return;
+
+let historico = JSON.parse(localStorage.getItem("historico")) || [];
+
+historico.push({
+resultado: resultadoFinal,
+player: player,
+enemy: enemy,
+hpPlayer: hpPlayer,
+hpEnemy: hpEnemy,
+winPlayer: win.winP,
+winEnemy: win.winE,
+data: new Date().toLocaleString("pt-BR")
+});
+
+localStorage.setItem("historico",JSON.stringify(historico));
+batalhaJaSalva = true;
+}
+
+function simularBatalha(){
+if(player.length===0 || enemy.length===0){
+alert("Volte e selecione os decks primeiro!");
+return;
+}
+
+let hpPlayer=3000;
+let hpEnemy=3000;
+let logs="";
+
+let win=calcularWinrate();
+
+for(let round=0;round<8;round++){
+let cartaP=player[round];
+let cartaE=enemy[round];
+
+let sP=getStats(cartaP);
+let sE=getStats(cartaE);
+
+let danoPlayer=Math.round((sP.atk*1.8)+(sP.spd*.7)-(sE.def*.35));
+let danoEnemy=Math.round((sE.atk*1.8)+(sE.spd*.7)-(sP.def*.35));
+
+danoPlayer=Math.max(80,danoPlayer);
+danoEnemy=Math.max(80,danoEnemy);
+
+if(sP.type==="win") danoPlayer+=80;
+if(sE.type==="win") danoEnemy+=80;
+
+if(sP.type==="spell") danoPlayer+=40;
+if(sE.type==="spell") danoEnemy+=40;
+
+if(sP.type==="building") danoEnemy-=50;
+if(sE.type==="building") danoPlayer-=50;
+
+danoPlayer=Math.max(40,danoPlayer);
+danoEnemy=Math.max(40,danoEnemy);
+
+hpEnemy-=danoPlayer;
+hpPlayer-=danoEnemy;
+
+logs+=`<p>Rodada ${round+1}: ${cartaP} causou ${danoPlayer} | ${cartaE} causou ${danoEnemy}</p>`;
+}
+
+hpPlayer=Math.max(0,hpPlayer);
+hpEnemy=Math.max(0,hpEnemy);
+
+document.getElementById("playerHpText").innerText=hpPlayer;
+document.getElementById("enemyHpText").innerText=hpEnemy;
+
+document.getElementById("playerLife").style.width=(hpPlayer/3000*100)+"%";
+document.getElementById("enemyLife").style.width=(hpEnemy/3000*100)+"%";
+
+let vencedor="";
+let coroa="";
+let resultadoFinal="";
+
+if(hpPlayer>hpEnemy){
+vencedor="VOCÊ VENCEU!";
+resultadoFinal="Vitória 🏆";
+coroa="👑";
+document.getElementById("playerBox").style.boxShadow="0 0 40px gold";
+document.getElementById("enemyBox").style.opacity=".65";
+}
+else if(hpEnemy>hpPlayer){
+vencedor="INIMIGO VENCEU!";
+resultadoFinal="Derrota ❌";
+coroa="👑";
+document.getElementById("enemyBox").style.boxShadow="0 0 40px gold";
+document.getElementById("playerBox").style.opacity=".65";
+}
+else{
+vencedor="EMPATE!";
+resultadoFinal="Empate ⚔️";
+coroa="⚔️";
+}
+
+salvarHistorico(resultadoFinal,hpPlayer,hpEnemy,win);
+
+document.getElementById("result").innerHTML=`
+<div class="crown">${coroa}</div>
+<h2>${vencedor}</h2>
+<p>📊 Winrate estimado: Você ${win.winP}% x ${win.winE}% Inimigo</p>
+<p>🏰 Sua torre: ${hpPlayer} HP</p>
+<p>🏯 Torre inimiga: ${hpEnemy} HP</p>
+<p>📜 Batalha salva no histórico.</p>
+<div class="logs">${logs}</div>
+`;
+}
+
+mostrarCartas();
+calcularWinrate();
+analisarIA();
+</script>
+
+</body>
+</html>
