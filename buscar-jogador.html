@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscar Jogador</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+overflow-x:hidden;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/clash%20royale%20player%20profile%20arena%20gold%20blue%20cinematic")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.68);
+z-index:-1;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:35px 20px 100px;
+}
+
+h1{
+color:gold;
+text-shadow:0 0 20px gold;
+margin-bottom:12px;
+}
+
+.subtitle{
+opacity:.9;
+margin-bottom:25px;
+}
+
+.search-box{
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,215,0,.35);
+border-radius:18px;
+padding:22px;
+box-shadow:0 0 25px rgba(255,215,0,.25);
+margin-bottom:25px;
+}
+
+input{
+padding:14px;
+border:none;
+border-radius:12px;
+outline:none;
+width:260px;
+max-width:90%;
+font-size:16px;
+text-align:center;
+}
+
+button{
+padding:13px 22px;
+margin:8px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.profile{
+background:rgba(0,0,0,.58);
+border:1px solid rgba(255,255,255,.18);
+border-radius:20px;
+padding:22px;
+box-shadow:0 0 25px rgba(0,0,0,.45);
+margin-top:20px;
+}
+
+.profile h2{
+color:gold;
+font-size:32px;
+margin-bottom:8px;
+}
+
+.tag{
+opacity:.85;
+margin-bottom:18px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+gap:15px;
+margin:22px 0;
+}
+
+.stat{
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,215,0,.25);
+border-radius:15px;
+padding:15px;
+}
+
+.stat h3{
+color:#ffcc00;
+font-size:28px;
+}
+
+.deck-area{
+margin-top:25px;
+}
+
+.deck{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:12px;
+margin-top:15px;
+}
+
+.card-box{
+width:95px;
+background:rgba(0,0,0,.55);
+border:1px solid rgba(255,215,0,.45);
+border-radius:14px;
+padding:9px;
+transition:.3s;
+}
+
+.card-box:hover{
+transform:scale(1.12);
+box-shadow:0 0 18px gold;
+}
+
+.card-box img{
+width:68px;
+display:block;
+margin:auto;
+}
+
+.card-box span{
+display:block;
+font-size:11px;
+margin-top:6px;
+color:#ffcc00;
+}
+
+.actions{
+margin-top:25px;
+}
+
+.notice{
+margin-top:18px;
+font-size:13px;
+opacity:.8;
+}
+
+.back{
+position:fixed;
+left:18px;
+bottom:18px;
+}
+
+@media(max-width:700px){
+.card-box{
+width:78px;
+}
+
+.card-box img{
+width:58px;
+}
+
+.back{
+position:static;
+margin-top:20px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔎 Buscar Jogador</h1>
+<p class="subtitle">Digite a TAG do jogador para visualizar perfil, estatísticas e deck.</p>
+
+<div class="search-box">
+<input id="tagInput" placeholder="Ex: 2ABC123 sem #">
+<br>
+<button onclick="buscarJogador()">🔍 Buscar</button>
+<button onclick="buscarExemplo()">🎲 Exemplo</button>
+</div>
+
+<div id="resultado"></div>
+
+<p class="notice">
+⚠️ Esta versão está pronta para API real, mas usando dados simulados enquanto a API pública confiável não estiver disponível.
+</p>
+
+</div>
+
+<div class="back">
+<button onclick="window.location.href='decks.html'">🔙 Voltar para Decks</button>
+</div>
+
+<script>
+const imgBase="https://royaleapi.github.io/cr-api-assets/cards/";
+
+function cardFile(name){
+return name.toLowerCase()
+.replaceAll(".","")
+.replaceAll(" ","-")
+.replaceAll("'","");
+}
+
+function gerarDeckAleatorio(){
+const decks=[
+["Hog Rider","Musketeer","Cannon","Fireball","The Log","Ice Spirit","Skeletons","Ice Golem"],
+["Princess","Goblin Barrel","Rocket","Inferno Tower","Goblin Gang","Knight","The Log","Ice Spirit"],
+["Mega Knight","Ram Rider","Fisherman","Poison","Zap","Witch","Goblin Cage","Goblins"],
+["P.E.K.K.A","Battle Ram","Bandit","Royal Ghost","Magic Archer","Zap","Poison","Electro Wizard"],
+["Lava Hound","Balloon","Mega Minion","Baby Dragon","Arrows","Tombstone","Fireball","Skeletons"]
+];
+
+return decks[Math.floor(Math.random()*decks.length)];
+}
+
+async function buscarJogador(){
+let tag=document.getElementById("tagInput").value.trim().replace("#","");
+
+if(!tag){
+alert("Digite uma TAG primeiro.");
+return;
+}
+
+/*
+=================================================
+AQUI ENTRA API REAL FUTURAMENTE
+
+Exemplo se um dia seu backend estiver funcionando:
+
+const response = await fetch("https://SEU-BACKEND.com/player?tag=" + tag);
+const jogador = await response.json();
+render(jogador);
+
+=================================================
+*/
+
+let deck=gerarDeckAleatorio();
+
+let vitorias=Math.floor(Math.random()*9000)+500;
+let derrotas=Math.floor(Math.random()*5000)+200;
+let total=vitorias+derrotas;
+
+let jogador={
+nome:"Jogador_" + tag,
+tag:"#"+tag,
+trofeus:Math.floor(Math.random()*4500)+3500,
+melhorTrofeus:Math.floor(Math.random()*5000)+4500,
+nivel:Math.floor(Math.random()*10)+40,
+clan:"Arena BR",
+vitorias:vitorias,
+derrotas:derrotas,
+winrate:Math.round((vitorias/total)*100),
+deck:deck
+};
+
+render(jogador);
+}
+
+function buscarExemplo(){
+document.getElementById("tagInput").value="2ABC123";
+buscarJogador();
+}
+
+function render(j){
+let div=document.getElementById("resultado");
+
+div.innerHTML=`
+<div class="profile">
+
+<h2>${j.nome}</h2>
+<p class="tag">${j.tag}</p>
+<p>👥 Clã: <strong>${j.clan}</strong></p>
+
+<div class="stats">
+
+<div class="stat">
+<h3>${j.trofeus}</h3>
+<p>🏆 Troféus</p>
+</div>
+
+<div class="stat">
+<h3>${j.melhorTrofeus}</h3>
+<p>🥇 Melhor marca</p>
+</div>
+
+<div class="stat">
+<h3>${j.nivel}</h3>
+<p>⭐ Nível</p>
+</div>
+
+<div class="stat">
+<h3>${j.vitorias}</h3>
+<p>⚔️ Vitórias</p>
+</div>
+
+<div class="stat">
+<h3>${j.derrotas}</h3>
+<p>💀 Derrotas</p>
+</div>
+
+<div class="stat">
+<h3>${j.winrate}%</h3>
+<p>📊 Winrate</p>
+</div>
+
+</div>
+
+<div class="deck-area">
+<h2>🧠 Deck Atual</h2>
+
+<div class="deck">
+${j.deck.map(c=>`
+<div class="card-box">
+<img src="${imgBase}${cardFile(c)}.png" alt="${c}">
+<span>${c}</span>
+</div>
+`).join("")}
+</div>
+</div>
+
+<div class="actions">
+<button onclick='copiarDeck(${JSON.stringify(j.deck)})'>📋 Copiar Deck</button>
+<button onclick='usarDeck(${JSON.stringify(j.deck)})'>⚔️ Usar no Meu Deck</button>
+<button onclick='mandarBatalha(${JSON.stringify(j.deck)})'>🔥 Mandar para Batalha</button>
+</div>
+
+</div>
+`;
+}
+
+function copiarDeck(deck){
+navigator.clipboard.writeText(deck.join(", "));
+alert("Deck copiado!");
+}
+
+function usarDeck(deck){
+localStorage.setItem("playerCards",JSON.stringify(deck));
+alert("Deck salvo como seu deck!");
+window.location.href="decks.html";
+}
+
+function mandarBatalha(deck){
+localStorage.setItem("playerCards",JSON.stringify(deck));
+
+const enemy=["Knight","Musketeer","Tesla","Fireball","The Log","Hog Rider","Skeletons","Ice Spirit"];
+localStorage.setItem("enemyCards",JSON.stringify(enemy));
+
+window.location.href="batalha.html";
+}
+</script>
+
+</body>
+</html>
