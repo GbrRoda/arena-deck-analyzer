@@ -283,14 +283,8 @@ margin-top:15px;
 
 </div>
 
-</div>
-
 <div class="back">
-<button onclick="window.history.back()">🔙 Voltar</button>
-</div>
-
-<div class="home">
-<button onclick="window.history.back()">🔙 Voltar</button>
+<button onclick="voltarPagina()">🔙 Voltar</button>
 </div>
 
 <script>
@@ -584,10 +578,17 @@ addMsg("Olá! Eu sou o Coach IA PRO. Posso montar decks, analisar fraquezas, mos
 
 renderDeck();
 
+
 if(deckAtual.length>0){
 analisarDeck();
 }
+
+function voltarPagina(){
+window.location.href = "decks.html";
+}
+
 </script>
+
 
 </body>
 </html>
