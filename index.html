@@ -493,7 +493,8 @@ to{transform:scale(1.25) rotate(6deg);text-shadow:0 0 45px orange;}
 <a href="historico.html" class="nav-link">📜 Histórico</a>
 <a href="ia.html" class="nav-link">🤖 Coach IA</a>
 <a href="criador.html" class="nav-link">👤 Sobre o Criador</a>
-<a href="introducao.html" class="nav-link">📖 Sobre o Guia</a>
+<a href="introducao.html" class="nav-link">🛡️ Jornada</a>
+<a href="guia.html" class="nav-link">📘 Guia</a>
 </nav>
 </header>
 
@@ -510,7 +511,10 @@ to{transform:scale(1.25) rotate(6deg);text-shadow:0 0 45px orange;}
 <a href="historico.html" class="btn green nav-link">📜 Histórico</a>
 <a href="ia.html" class="btn purple nav-link">🤖 Coach IA</a>
 <a href="criador.html" class="btn purple nav-link">👤 Sobre o Criador</a>
-<a href="introducao.html" class="btn secondary nav-link">📖 Sobre o Guia</a>
+<a href="introducao.html" class="btn jornada-btn" style="background:linear-gradient(45deg,#4b1cff,#6f42ff); color:white; box-shadow:0 0 18px #6f42ff,0 0 35px rgba(111,66,255,.8);">
+🛡️ Jornada
+</a>
+<a href="guia.html" class="btn green nav-link">📘 Guia</a>
 </div>
 </section>
 
@@ -722,5 +726,34 @@ navegarPara(destino);
 salvarPaginaAtual();
 </script>
 
+<script>
+window.addEventListener("load", function(){
+
+  const url = new URL(window.location.href);
+  const abrirMenu = url.searchParams.get("menu");
+
+  if(abrirMenu === "1"){
+
+    const splash = document.getElementById("splash");
+    const menu = document.getElementById("menu");
+    const site = document.getElementById("site");
+
+    if(splash){
+      splash.style.display = "none";
+    }
+
+    if(menu){
+      menu.classList.remove("hidden");
+      menu.style.display = "block";
+    }
+
+    if(site){
+      site.classList.remove("hidden");
+      site.style.display = "block";
+    }
+  }
+
+});
+</script>
 </body>
 </html>

@@ -398,6 +398,15 @@ Fase atual: <span id="phaseText">PLAYER</span>
 </div>
 
 <div class="section">
+  <h2>🔎 Buscar Jogador</h2>
+  <p>Pesquise decks reais usando a TAG do jogador</p>
+
+  <button onclick="window.location.href='buscar-jogador.html'">
+    🔍 Buscar por TAG
+  </button>
+</div>
+
+<div class="section">
 <h2>📦 Todas as Cartas</h2>
 
 <input class="search" id="searchCard" placeholder="🔎 Buscar carta..." oninput="renderGrid()">
@@ -1319,43 +1328,14 @@ renderAll();
 
 
 
-/* =========================
-   🔥 SISTEMA DE VOLTAR REAL
-========================= */
-
-function salvarPaginaAtual(){
-let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
-
-let atual = window.location.pathname.split("/").pop() || "decks.html";
-
-if(historico.length === 0 || historico[historico.length - 1] !== atual){
-historico.push(atual);
-}
-
-localStorage.setItem("navHistorico", JSON.stringify(historico));
-}
-
 function voltarPagina(){
-somClique();
-mostrarLoading();
+  somClique();
+  mostrarLoading();
 
-setTimeout(()=>{
-let historico = JSON.parse(localStorage.getItem("navHistorico")) || [];
-
-historico.pop();
-let anterior = historico.pop();
-
-localStorage.setItem("navHistorico", JSON.stringify(historico));
-
-if(anterior){
-window.location.href = anterior;
-}else{
-window.location.href = "index.html";
+  setTimeout(() => {
+    window.location.href = "index.html?menu=1";
+  }, 650);
 }
-},650);
-}
-
-salvarPaginaAtual();
 
 </script>
 

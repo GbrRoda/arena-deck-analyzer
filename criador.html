@@ -199,7 +199,9 @@ to{opacity:1;transform:translateY(0);}
 
 <header class="topbar">
 <div class="logo">👤 Sobre o Criador</div>
-<a href="index.html" class="btn home">🔙 Menu</a>
+<button class="btn home" onclick="voltarPagina()">
+🔙 Voltar
+</button>
 </header>
 
 <main class="container">
@@ -247,7 +249,7 @@ Meu objetivo é evoluir como desenvolvedor, criar projetos cada vez mais complet
 </div>
 
 <div class="box">
-<h3>⚔️ Evolução</h3>
+<h3>⚔️ Evolução ⚔️</h3>
 <p>O sistema ganhou seleção de decks, batalha, coach automático, IA counter e análise estratégica.</p>
 </div>
 
@@ -262,5 +264,11 @@ Meu objetivo é evoluir como desenvolvedor, criar projetos cada vez mais complet
 
 </main>
 
+<script>
+function voltarPagina(){
+    window.location.href = "index.html?menu=1";
+}
+
+</script>
 </body>
 </html>

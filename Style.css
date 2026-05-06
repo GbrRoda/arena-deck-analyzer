@@ -5,71 +5,47 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    color: white;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-/* =========================
-   🎮 FUNDO ESTILO CLASH ROYALE (WALLPAPER)
-========================= */
-body {
     margin: 0;
     font-family: Arial, sans-serif;
     color: white;
     min-height: 100vh;
     overflow-x: hidden;
-
-    /* 🔥 FUNDO FORÇADO (SEM ::before, SEM ::after) */
     background: url("https://i.imgur.com/9aKQ9Zf.jpg") center/cover no-repeat fixed;
 }
 
-/* remove qualquer camada antiga que esteja cobrindo */
 body::before,
 body::after {
     display: none !important;
 }
 
-/* =========================
-   ⚔️ SPLASH SCREEN (ANIMAÇÃO ARENA)
-========================= */
+/* SPLASH */
 #splash {
     position: fixed;
     inset: 0;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     background: rgba(0, 0, 0, 0.45);
-
     z-index: 999;
 }
 
 .card {
     text-align: center;
     padding: 30px;
-
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 15px;
-
     animation: spawnArena 1.2s ease;
 }
 
-/* botão do splash */
 .card button {
     margin-top: 20px;
     padding: 12px 30px;
-
     background: linear-gradient(45deg, #ffcc00, #ff8800);
     border: none;
     border-radius: 10px;
-
     font-weight: bold;
     cursor: pointer;
-
     animation: pulse 1.5s infinite;
     transition: 0.3s;
 }
@@ -78,9 +54,7 @@ body::after {
     transform: scale(1.1);
 }
 
-/* =========================
-   📌 MENU
-========================= */
+/* MENU */
 .menu {
     position: fixed;
     top: 0;
@@ -93,17 +67,89 @@ body::after {
     z-index: 10;
 }
 
+.logo {
+    color: #ffcc00;
+    font-weight: bold;
+    text-shadow: 0 0 10px gold;
+}
+
 .menu a {
     color: white;
     margin-left: 15px;
     text-decoration: none;
 }
 
-/* =========================
-   🏠 CONTEÚDO PRINCIPAL
-========================= */
+/* MENU HAMBÚRGUER */
+.menu-toggle {
+    font-size: 28px;
+    cursor: pointer;
+    color: gold;
+    transition: 0.3s;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.2);
+    text-shadow: 0 0 15px gold;
+}
+
+.nav-hidden {
+    position: absolute;
+    top: 70px;
+    right: 25px;
+    background: rgba(0,0,0,0.92);
+    padding: 18px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: 0.3s;
+    border: 1px solid rgba(255,215,0,0.45);
+    box-shadow: 0 0 25px rgba(255,215,0,0.25);
+}
+
+.nav-hidden.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+.nav-hidden .nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+    transition: 0.3s;
+    margin-left: 0;
+}
+
+.nav-hidden .nav-link:hover {
+    background: gold;
+    color: black;
+    box-shadow: 0 0 15px gold;
+}
+
+/* BOTÃO GUIA DESTACADO */
+.guia-btn {
+    background: linear-gradient(45deg, gold, orange);
+    color: black !important;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 10px 14px !important;
+    box-shadow: 0 0 15px gold;
+}
+
+.guia-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px gold;
+}
+
+/* CONTEÚDO PRINCIPAL */
 .container {
-    height: 100vh;
+    min-height: 100vh;
+    padding: 120px 20px 80px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -120,7 +166,6 @@ h1 {
     color: #ffcc00;
     font-size: 40px;
     text-shadow: 0 0 10px black;
-
     animation: glow 2s infinite;
 }
 
@@ -128,27 +173,27 @@ p {
     margin-top: 15px;
 }
 
-/* BOTÃO */
 .btn {
     margin-top: 20px;
     padding: 12px 25px;
-
     background: linear-gradient(45deg, #ffcc00, #ff8800);
     color: black;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
+    transition: 0.3s;
 }
 
-/* esconder site inicialmente */
+.btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px gold;
+}
+
 .hidden {
     display: none;
 }
 
-/* =========================
-   ✨ ANIMAÇÕES
-========================= */
-
+/* ANIMAÇÕES */
 @keyframes spawnArena {
     0% {
         opacity: 0;
@@ -172,4 +217,30 @@ p {
     0% { box-shadow: 0 0 10px #ffcc00; }
     50% { box-shadow: 0 0 25px #ff8800; }
     100% { box-shadow: 0 0 10px #ffcc00; }
+}
+
+@media(max-width:700px){
+    .menu{
+        padding: 18px 20px;
+    }
+
+    h1{
+        font-size: 32px;
+    }
+
+    .nav-hidden{
+        right: 15px;
+        width: 220px;
+    }
+}
+   .jornada-btn{
+    background: linear-gradient(45deg, #4b1cff, #6f42ff) !important;
+    color: white !important;
+
+    box-shadow:
+    0 0 12px #6f42ff,
+    0 0 24px rgba(111,66,255,0.8),
+    0 0 40px rgba(111,66,255,0.45);
+
+    border: 1px solid rgba(255,255,255,0.2);
 }

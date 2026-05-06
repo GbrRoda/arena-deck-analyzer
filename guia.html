@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia para Iniciantes</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+color:white;
+text-align:center;
+min-height:100vh;
+background:#111;
+}
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:url("https://image.pollinations.ai/prompt/fantasy%20battle%20arena%20strategy%20guide%20gold%20blue%20cinematic")
+center/cover no-repeat;
+filter:blur(5px);
+transform:scale(1.08);
+z-index:-2;
+}
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.72);
+z-index:-1;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:35px 20px 100px;
+}
+
+h1{
+color:gold;
+text-shadow:0 0 20px gold;
+margin-bottom:15px;
+}
+
+.subtitle{
+opacity:.9;
+margin-bottom:25px;
+}
+
+.tabs{
+display:flex;
+justify-content:center;
+gap:12px;
+flex-wrap:wrap;
+margin-bottom:25px;
+}
+
+button{
+padding:13px 22px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,gold,orange);
+font-weight:bold;
+cursor:pointer;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.08);
+box-shadow:0 0 20px gold;
+}
+
+.tab-btn.active{
+box-shadow:0 0 25px gold;
+transform:scale(1.05);
+}
+
+.level{
+display:none;
+animation:fade .4s ease;
+}
+
+.level.active{
+display:block;
+}
+
+.card{
+background:rgba(0,0,0,.58);
+border:1px solid rgba(255,255,255,.18);
+border-radius:18px;
+padding:20px;
+margin:18px 0;
+text-align:left;
+box-shadow:0 0 22px rgba(0,0,0,.4);
+}
+
+.card h2{
+color:#ffcc00;
+margin-bottom:10px;
+}
+
+.card p,.card li{
+line-height:1.6;
+font-size:16px;
+}
+
+ul{
+margin-left:22px;
+}
+
+.back{
+position:fixed;
+left:18px;
+bottom:18px;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+@media(max-width:700px){
+.back{
+position:static;
+margin-top:25px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📘 Guia Completo do Jogo</h1>
+<p class="subtitle">Aprenda desde o básico até estratégias avançadas para montar decks melhores e jogar com mais inteligência.</p>
+
+<div class="tabs">
+<button class="tab-btn active" onclick="abrirNivel('iniciante',this)">🟢 Iniciante</button>
+<button class="tab-btn" onclick="abrirNivel('intermediario',this)">🟡 Intermediário</button>
+<button class="tab-btn" onclick="abrirNivel('avancado',this)">🔴 Avançado</button>
+</div>
+
+<div id="iniciante" class="level active">
+
+<div class="card">
+<h2>⚡ O que é Elixir?</h2>
+<p>Elixir é o recurso usado para jogar cartas durante a partida. Cada carta possui um custo. Saber gastar bem o elixir é essencial para atacar, defender e não ficar vulnerável.</p>
+</div>
+
+<div class="card">
+<h2>🧠 O que é um Deck?</h2>
+<p>Um deck é o conjunto de 8 cartas usadas na batalha. Um bom deck precisa ter ataque, defesa, cartas baratas, feitiços e uma condição de vitória.</p>
+</div>
+
+<div class="card">
+<h2>🏆 O que são Troféus?</h2>
+<p>Troféus representam sua progressão. Ao vencer partidas você ganha troféus, e ao perder pode perder troféus também.</p>
+</div>
+
+<div class="card">
+<h2>⭐ Nível das Cartas</h2>
+<p>O nível das cartas influencia dano, vida e força geral. Cartas mais evoluídas tendem a ter mais impacto na partida.</p>
+</div>
+
+<div class="card">
+<h2>✅ Dicas para começar</h2>
+<ul>
+<li>Não gaste todo o elixir de uma vez.</li>
+<li>Defenda primeiro e ataque depois.</li>
+<li>Use decks equilibrados.</li>
+<li>Aprenda o custo das cartas principais.</li>
+</ul>
+</div>
+
+</div>
+
+<div id="intermediario" class="level">
+
+<div class="card">
+<h2>🎯 Condição de Vitória</h2>
+<p>É a carta principal que você usa para causar dano na torre inimiga, como Corredor, Barril de Goblins, Gigante, Balão ou Monta-Carneiros.</p>
+</div>
+
+<div class="card">
+<h2>🔁 Ciclo de Cartas</h2>
+<p>Ciclo é a velocidade com que você consegue voltar para suas cartas principais. Decks baratos giram mais rápido e pressionam melhor.</p>
+</div>
+
+<div class="card">
+<h2>🛡️ Defesa eficiente</h2>
+<p>Uma boa defesa usa menos elixir do que o ataque inimigo. Assim você cria vantagem para contra-atacar.</p>
+</div>
+
+<div class="card">
+<h2>🔥 Feitiços</h2>
+<p>Feitiços pequenos ajudam contra tropas fracas. Feitiços pesados ajudam a finalizar torres ou eliminar tropas importantes.</p>
+</div>
+
+<div class="card">
+<h2>✅ Dicas intermediárias</h2>
+<ul>
+<li>Conte o elixir do inimigo.</li>
+<li>Descubra a condição de vitória do adversário.</li>
+<li>Não use feitiço pesado sem necessidade.</li>
+<li>Monte pressão nas duas rotas quando possível.</li>
+</ul>
+</div>
+
+</div>
+
+<div id="avancado" class="level">
+
+<div class="card">
+<h2>🧠 Leitura de Jogo</h2>
+<p>Jogadores avançados observam o ciclo do inimigo, contam elixir e sabem quando punir uma jogada errada.</p>
+</div>
+
+<div class="card">
+<h2>⚔️ Controle de Elixir</h2>
+<p>Se você defende gastando menos, ganha vantagem. Essa vantagem pode virar um ataque forte e decidir a partida.</p>
+</div>
+
+<div class="card">
+<h2>🚀 Pressão e Punição</h2>
+<p>Quando o inimigo gasta muito elixir em uma rota, você pode atacar a outra rota rapidamente para forçar uma defesa ruim.</p>
+</div>
+
+<div class="card">
+<h2>🏗️ Posicionamento</h2>
+<p>Colocar construções e tropas no lugar certo muda completamente a defesa. Um bom posicionamento pode parar ataques muito mais caros.</p>
+</div>
+
+<div class="card">
+<h2>✅ Dicas avançadas</h2>
+<ul>
+<li>Memorize o ciclo das cartas do inimigo.</li>
+<li>Force respostas ruins do adversário.</li>
+<li>Guarde counters para cartas perigosas.</li>
+<li>Use pressão para controlar o ritmo da partida.</li>
+</ul>
+</div>
+
+</div>
+
+</div>
+
+<div class="back">
+<button onclick="window.history.back()">🔙 Voltar</button>
+</div>
+
+<script>
+function abrirNivel(id,botao){
+document.querySelectorAll(".level").forEach(l=>l.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+
+document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+botao.classList.add("active");
+}
+</script>
+
+</body>
+</html>

@@ -169,7 +169,7 @@ p {
 
 <div id="sidebar" class="sidebar">
     <h2>🎮 Menu</h2>
-    <a href="index.html">🏠 Menu</a>
+    <button onclick="voltarPagina()">🔙 Voltar</button>
     <a href="decks.html">⚔️ Decks</a>
 </div>
 
@@ -202,9 +202,9 @@ p {
 
 <p class="final">🔥 A arena não é para todos... mas quem aprende a dominá-la, nunca mais joga do mesmo jeito.</p>
 
-<a href="index.html" class="back-btn">
+<button class="back-btn" onclick="voltarPagina()">
 ↩️ Retornar
-</a>
+</button>
 
 </div>
 
@@ -285,6 +285,12 @@ function draw(){
 }
 
 draw();
+
+draw();
+
+function voltarPagina(){
+    window.location.href = "index.html?menu=1";
+}
 
 </script>
 

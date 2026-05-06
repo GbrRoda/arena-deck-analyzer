@@ -337,18 +337,7 @@ sessionStorage.setItem("pilhaPaginas", JSON.stringify(pilha));
 }
 
 function voltarPagina(){
-let pilha = JSON.parse(sessionStorage.getItem("pilhaPaginas")) || [];
-
-pilha.pop();
-let anterior = pilha.pop();
-
-sessionStorage.setItem("pilhaPaginas", JSON.stringify(pilha));
-
-if(anterior){
-window.location.href = anterior;
-}else{
-window.location.href = "index.html";
-}
+  window.location.href = "decks.html";
 }
 
 salvarPaginaAtual();
